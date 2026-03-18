@@ -1,0 +1,24 @@
+{
+  "name": "form-conditions",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/form-conditions/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/packages/form-conditions",
+        "tsConfig": "packages/form-conditions/tsconfig.json",
+        "main": "packages/form-conditions/src/index.ts"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": ["packages/form-conditions/**/*.ts"]
+      }
+    }
+  },
+  "tags": []
+}

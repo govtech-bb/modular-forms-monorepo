@@ -1,0 +1,10 @@
+{
+  "name": "@govtech-bb/api",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@govtech-bb/form-types": "*",
+    "@govtech-bb/form-conditions": "*",
+    "@govtech-bb/form-registry": "*"
+  }
+}
