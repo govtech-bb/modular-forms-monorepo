@@ -1,4 +1,4 @@
-const { withAmplifyHosting } = require("@aws-amplify/adapter-nextjs");
+﻿const { withAmplifyHosting } = require("@aws-amplify/adapter-nextjs");
 
 /** @type {import('next').NextConfig} */
 const nextConfig = withAmplifyHosting({
