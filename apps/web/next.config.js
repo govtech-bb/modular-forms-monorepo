@@ -1,5 +1,7 @@
-/** @type {import('next').NextConfig} */
+﻿/** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: "export",
+  trailingSlash: true,
   transpilePackages: [
     "@govtech-bb/form-types",
     "@govtech-bb/form-conditions",
