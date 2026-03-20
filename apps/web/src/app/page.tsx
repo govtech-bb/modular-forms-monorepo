@@ -1,4 +1,14 @@
-async function getApiStatus() {
+interface DbStatus {
+  connected: boolean;
+  version?: string;
+  error?: string;
+}
+
+async function getApiStatus(): Promise<{
+  health: { status: string } | null;
+  db: DbStatus | null;
+  error: string | null;
+}> {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
   try {
     const [health, db] = await Promise.all([
