@@ -1,0 +1,28 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "rootDir": ".",
+    "sourceMap": true,
+    "declaration": true,
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "target": "ES2022",
+    "module": "ESNext",
+    "lib": ["ES2022"],
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "baseUrl": ".",
+    "strict": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "paths": {
+      "@govtech-bb/form-types": ["packages/form-types/src/index.ts"],
+      "@govtech-bb/form-conditions": ["packages/form-conditions/src/index.ts"],
+      "@govtech-bb/form-registry": ["packages/form-registry/src/index.ts"]
+    }
+  },
+  "exclude": ["node_modules", "tmp"]
+}
