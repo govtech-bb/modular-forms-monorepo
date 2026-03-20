@@ -5,6 +5,8 @@
   "dependencies": {
     "@govtech-bb/form-types": "*",
     "@govtech-bb/form-conditions": "*",
-    "@govtech-bb/form-registry": "*"
+    "@govtech-bb/form-registry": "*",
+    "pg": "^8.13.0",
+    "@types/pg": "^8.11.0"
   }
 }

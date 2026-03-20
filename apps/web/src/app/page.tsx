@@ -1,8 +1,45 @@
-import { ComponentRegistry } from "@govtech-bb/form-registry";
+async function getApiStatus() {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+  try {
+    const [health, db] = await Promise.all([
+      fetch(`${apiUrl}/health`, { cache: "no-store" }).then((r) => r.json()),
+      fetch(`${apiUrl}/db-check`, { cache: "no-store" }).then((r) => r.json()),
+    ]);
+    return { health, db, error: null };
+  } catch (err: any) {
+    return { health: null, db: null, error: err.message };
+  }
+}
 
-// Confirms the dependency graph works
-const _registry = new ComponentRegistry();
+export default async function Home() {
+  const { health, db, error } = await getApiStatus();
 
-export default function Home() {
-  return <p>OK</p>;
+  return (
+    <main style={{ fontFamily: "monospace", padding: "2rem" }}>
+      <h1>Modular Forms — Sandbox Status</h1>
+
+      <h2>API Health</h2>
+      {error ? (
+        <p style={{ color: "red" }}>Could not reach API: {error}</p>
+      ) : (
+        <pre style={{ background: "#f0f0f0", padding: "1rem" }}>
+          {JSON.stringify(health, null, 2)}
+        </pre>
+      )}
+
+      <h2>Database</h2>
+      {db ? (
+        <pre
+          style={{
+            background: db.connected ? "#e6ffe6" : "#ffe6e6",
+            padding: "1rem",
+          }}
+        >
+          {JSON.stringify(db, null, 2)}
+        </pre>
+      ) : (
+        <p style={{ color: "red" }}>No DB response</p>
+      )}
+    </main>
+  );
 }
