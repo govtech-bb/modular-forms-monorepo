@@ -1,4 +1,4 @@
-FROM node:20-alpine AS builder
+﻿FROM node:20-alpine AS builder
 
 WORKDIR /app
 
@@ -6,7 +6,7 @@ COPY package.json package-lock.json nx.json tsconfig.base.json ./
 COPY apps/api/ apps/api/
 COPY packages/ packages/
 
-RUN npm ci --ignore-scripts
+RUN npm install --ignore-scripts
 RUN npx nx build api
 
 FROM node:20-alpine AS runner
