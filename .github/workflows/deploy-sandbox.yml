@@ -1,4 +1,4 @@
-﻿name: Deploy API to Sandbox
+name: Deploy API to Sandbox
 
 on:
   push:
