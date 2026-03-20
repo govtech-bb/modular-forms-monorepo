@@ -2,8 +2,8 @@ async function getApiStatus() {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
   try {
     const [health, db] = await Promise.all([
-      fetch(`${apiUrl}/health`, { cache: "no-store" }).then((r) => r.json()),
-      fetch(`${apiUrl}/db-check`, { cache: "no-store" }).then((r) => r.json()),
+      fetch(`${apiUrl}/health`, { next: { revalidate: 0 } } as any).then((r) => r.json()),
+      fetch(`${apiUrl}/db-check`, { next: { revalidate: 0 } } as any).then((r) => r.json()),
     ]);
     return { health, db, error: null };
   } catch (err: any) {
