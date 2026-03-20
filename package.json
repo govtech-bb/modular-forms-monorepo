@@ -1,12 +1,50 @@
-const { withAmplifyHosting } = require("@aws-amplify/adapter-nextjs");
-
-/** @type {import('next').NextConfig} */
-const nextConfig = withAmplifyHosting({
-  transpilePackages: [
-    "@govtech-bb/form-types",
-    "@govtech-bb/form-conditions",
-    "@govtech-bb/form-registry",
+{
+  "name": "@govtech-bb/modular-forms-monorepo",
+  "version": "0.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
   ],
-});
-
-module.exports = nextConfig;
+  "scripts": {
+    "build": "nx run-many -t build",
+    "lint": "nx run-many -t lint",
+    "dev:web": "nx dev web",
+    "dev:api": "nx dev api",
+    "start:web": "nx start web",
+    "start:api": "nx start api",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "dependencies": {
+    "@aws-amplify/adapter-nextjs": "^1.2.0"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^10.0.0",
+    "@nestjs/common": "^10.0.0",
+    "@nestjs/core": "^10.0.0",
+    "@nestjs/platform-express": "^10.0.0",
+    "@nx/eslint": "^20.4.0",
+    "@nx/eslint-plugin": "^20.4.0",
+    "@nx/js": "^20.4.0",
+    "@nx/nest": "^20.4.0",
+    "@nx/next": "^20.4.0",
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "eslint": "^8.57.0",
+    "eslint-config-next": "^14.0.0",
+    "eslint-config-prettier": "^10.0.0",
+    "next": "^14.0.0",
+    "nx": "^20.4.0",
+    "prettier": "^3.0.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "reflect-metadata": "^0.2.0",
+    "rxjs": "^7.0.0",
+    "typescript": "^5.7.0"
+  },
+  "packageManager": "npm@10.9.0"
+}
