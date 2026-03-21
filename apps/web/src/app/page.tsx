@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 interface DbStatus {
   connected: boolean;
   version?: string;
@@ -8,8 +10,8 @@ async function getApiStatus(): Promise<{ health: any; db: DbStatus | null; error
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
   try {
     const [healthRes, dbRes] = await Promise.all([
-      fetch(`${apiUrl}/health`, { cache: "no-store" }),
-      fetch(`${apiUrl}/db-check`, { cache: "no-store" }),
+      fetch(`${apiUrl}/health`),
+      fetch(`${apiUrl}/db-check`),
     ]);
     const health = await healthRes.json();
     const db: DbStatus = await dbRes.json();
