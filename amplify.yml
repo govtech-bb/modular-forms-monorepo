@@ -1,17 +1,19 @@
 ﻿version: 1
-frontend:
-  phases:
-    preBuild:
-      commands:
-        - npm install --ignore-scripts
-    build:
-      commands:
-        - npx nx build web
-  artifacts:
-    baseDirectory: apps/web/out
-    files:
-      - "**/*"
-  cache:
-    paths:
-      - node_modules/**/*
-      - .nx/cache/**/*
+applications:
+  - frontend:
+      phases:
+        preBuild:
+          commands:
+            - npm install --ignore-scripts
+        build:
+          commands:
+            - npx nx build web
+      artifacts:
+        baseDirectory: .next
+        files:
+          - "**/*"
+      cache:
+        paths:
+          - node_modules/**/*
+          - .nx/cache/**/*
+    appRoot: apps/web

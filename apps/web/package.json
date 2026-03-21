@@ -5,7 +5,6 @@
   "dependencies": {
     "@govtech-bb/form-types": "*",
     "@govtech-bb/form-conditions": "*",
-    "@govtech-bb/form-registry": "*",
-    "@aws-amplify/adapter-nextjs": "^1.2.0"
+    "@govtech-bb/form-registry": "*"
   }
 }

@@ -1,6 +1,4 @@
-﻿const { withAmplifyHosting } = require("@aws-amplify/adapter-nextjs");
-
-/** @type {import('next').NextConfig} */
+﻿/** @type {import('next').NextConfig} */
 const nextConfig = {
   transpilePackages: [
     "@govtech-bb/form-types",
@@ -9,4 +7,4 @@ const nextConfig = {
   ],
 };
 
-module.exports = withAmplifyHosting(nextConfig);
+module.exports = nextConfig;
