@@ -29,7 +29,7 @@ applications:
                   { "path": "/*.*", "target": { "kind": "Static" }, "fallback": { "kind": "Compute", "src": "default" } },
                   { "path": "/*", "target": { "kind": "Compute", "src": "default" } }
                 ],
-                "computeResources": [{ "name": "default", "runtime": "nodejs20.x", "entrypoint": "server.js" }],
+                "computeResources": [{ "name": "default", "runtime": "nodejs20.x", "entrypoint": "apps/web/server.js" }],
                 "framework": { "name": "next", "version": "14.2.35" }
               }
               EOF
