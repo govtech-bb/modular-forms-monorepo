@@ -9,13 +9,16 @@ applications:
             - npm install --ignore-scripts
         build:
           commands:
-            - npx nx build web
+            - npx nx run form-types:build
+            - npx nx run form-conditions:build
+            - npx nx run form-registry:build
+            - cd apps/web && npx next build && cd ../..
         postBuild:
           commands:
             - mkdir -p .amplify-hosting/compute/default
             - mkdir -p .amplify-hosting/static/_next/static
-            - cp -r dist/apps/web/.next/standalone/. .amplify-hosting/compute/default/
-            - cp -r dist/apps/web/.next/static/. .amplify-hosting/static/_next/static/
+            - cp -r apps/web/.next/standalone/. .amplify-hosting/compute/default/
+            - cp -r apps/web/.next/static/. .amplify-hosting/static/_next/static/
             - cp -r apps/web/public/. .amplify-hosting/static/
             - |
               cat > .amplify-hosting/deploy-manifest.json << 'EOF'
