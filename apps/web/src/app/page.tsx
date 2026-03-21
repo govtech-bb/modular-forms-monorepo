@@ -1,21 +1,23 @@
 export const dynamic = "force-dynamic";
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 interface DbStatus {
   connected: boolean;
   version?: string;
   error?: string;
 }
 
-async function getApiStatus(): Promise<{ health: any; db: DbStatus | null; error: string | null }> {
+async function getApiStatus() {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
   try {
     const [healthRes, dbRes] = await Promise.all([
       fetch(`${apiUrl}/health`),
       fetch(`${apiUrl}/db-check`),
     ]);
-    const health = await healthRes.json();
-    const db: DbStatus = await dbRes.json();
-    return { health, db, error: null };
+    const health = (await healthRes.json()) as any;
+    const db = (await dbRes.json()) as DbStatus;
+    return { health, db, error: null as string | null };
   } catch (err: any) {
     return { health: null, db: null, error: String(err?.message ?? err) };
   }
