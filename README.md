@@ -53,14 +53,27 @@ cp apps/api/.env.example apps/api/.env
 | `PORT` | web | `4200` | Next.js server port |
 | `NEXT_PUBLIC_API_URL` | web | `http://localhost:3001` | API base URL |
 | `API_PORT` | api | `3001` | NestJS server port |
+| `DB_HOST` | api | — | PostgreSQL host |
+| `DB_PORT` | api | `5432` | PostgreSQL port |
+| `DB_DATABASE` | api | — | Database name |
+| `DB_USERNAME` | api | — | Database user |
+| `DB_PASSWORD` | api | — | Database password |
 
 ## Deployment
 
-### Web (AWS Amplify)
+### Web (AWS Amplify — WEB_COMPUTE)
 
-The `amplify.yml` at the repo root configures the build. Amplify runs `npx nx build web` and serves from `apps/web/.next`.
+The `amplify.yml` at the repo root configures the build. Amplify uses the `WEB_COMPUTE` platform to run Next.js as a server-side Node.js application.
 
-Set environment variables in the Amplify console.
+The build process:
+1. Installs dependencies from the monorepo root
+2. Builds shared packages via Nx (`form-types`, `form-conditions`, `form-registry`)
+3. Runs `next build` directly from `apps/web` — this is required to produce a standalone output bundle
+4. Assembles the `.amplify-hosting/` directory in `postBuild` with the compute bundle and static assets
+
+`apps/web/next.config.js` must have `output: "standalone"` set. This tells Next.js to bundle a self-contained Node.js server at `apps/web/.next/standalone`, which Amplify uses as the compute entrypoint.
+
+Set `NEXT_PUBLIC_API_URL` in the Amplify console under the branch environment variables.
 
 ### API (AWS Fargate)
 
@@ -70,7 +83,7 @@ A Dockerfile is provided at `apps/api/Dockerfile`. Build and push to ECR:
 docker build -f apps/api/Dockerfile -t govtech-api .
 ```
 
-Set `API_PORT` in the ECS task definition environment variables.
+DB connection environment variables (`DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`) should be injected into the ECS task definition, ideally sourced from AWS Secrets Manager.
 
 ## Path aliases
 
@@ -85,5 +98,5 @@ Shared packages are available via these TypeScript path aliases (configured in `
 ```bash
 npx nx graph          # Visualize the dependency graph
 npx nx show projects  # List all projects
-npx nx build web      # Build a single project
+npx nx build web      # Build a single project (local dev only — see Deployment note above)
 ```
