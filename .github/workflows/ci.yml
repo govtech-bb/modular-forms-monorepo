@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main, development, sandbox]
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    name: Lint & Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm install --ignore-scripts
+
+      - name: Lint
+        run: npx nx run-many -t lint
+
+      - name: Build
+        run: npx nx run-many -t build
