@@ -76,12 +76,51 @@ jobs:
           cluster: ${{ env.ECS_CLUSTER }}
           wait-for-service-stability: true
 
-      - name: Summary
+      - name: Monitor Amplify build
+        id: amplify
+        env:
+          AMPLIFY_APP_ID: d1yjf5g5ckxcxg
+          AMPLIFY_BRANCH: sandbox
         run: |
-          echo "## ✅ Sandbox Deployment Complete" >> "$GITHUB_STEP_SUMMARY"
+          JOB_ID=$(aws amplify start-job \
+            --app-id "$AMPLIFY_APP_ID" \
+            --branch-name "$AMPLIFY_BRANCH" \
+            --job-type RELEASE \
+            --region "$AWS_REGION" \
+            --query job.summary.jobId \
+            --output text)
+          echo "job_id=$JOB_ID" >> "$GITHUB_OUTPUT"
+          echo "Amplify job started: $JOB_ID"
+
+          for i in $(seq 1 30); do
+            STATUS=$(aws amplify get-job \
+              --app-id "$AMPLIFY_APP_ID" \
+              --branch-name "$AMPLIFY_BRANCH" \
+              --job-id "$JOB_ID" \
+              --region "$AWS_REGION" \
+              --query job.summary.status \
+              --output text)
+            echo "[$i/30] Amplify status: $STATUS"
+            if [ "$STATUS" = "SUCCEED" ]; then
+              echo "✅ Amplify build succeeded"
+              exit 0
+            elif [ "$STATUS" = "FAILED" ] || [ "$STATUS" = "CANCELLED" ]; then
+              echo "❌ Amplify build $STATUS"
+              exit 1
+            fi
+            sleep 30
+          done
+          echo "❌ Amplify build timed out after 15 minutes"
+          exit 1
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "## Sandbox Deployment Summary" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "**Image:** ${{ steps.build.outputs.image }}" >> "$GITHUB_STEP_SUMMARY"
           echo "**Commit:** ${{ github.sha }}" >> "$GITHUB_STEP_SUMMARY"
-          echo "**API URL:** https://forms-sandbox.alpha.gov.bb" >> "$GITHUB_STEP_SUMMARY"
+          echo "**API URL:** https://app-sandbox.alpha.gov.bb" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Amplify Job:** ${{ steps.amplify.outputs.job_id }}" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "Check logs: \`aws logs tail /ecs/modular-forms-api-sandbox --follow\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "Check API logs: \`aws logs tail /ecs/modular-forms-api-sandbox --follow\`" >> "$GITHUB_STEP_SUMMARY"
