@@ -87,7 +87,7 @@ jobs:
             --branch-name "$AMPLIFY_BRANCH" \
             --job-type RELEASE \
             --region "$AWS_REGION" \
-            --query job.summary.jobId \
+            --query jobSummary.jobId \
             --output text)
           echo "job_id=$JOB_ID" >> "$GITHUB_OUTPUT"
           echo "Amplify job started: $JOB_ID"
