@@ -1,6 +1,10 @@
 import { TypeOrmModuleOptions } from "@nestjs/typeorm";
-import { join } from "path";
 import { DataSource, DataSourceOptions } from "typeorm";
+import {
+  FormComponentEntity,
+  FormDefinitionEntity,
+  FormSubmissionEntity,
+} from "./entities";
 
 const host = process.env.DB_HOST || "localhost";
 const port = Number(process.env.DB_PORT || 5432);
@@ -15,14 +19,8 @@ export const dataSourceOptions: DataSourceOptions = {
   username,
   password,
   database,
-  entities: [
-    join(process.cwd(), "apps/api/src/**/*.entity.ts"),
-    join(process.cwd(), "dist/apps/api/**/*.entity.js"),
-  ],
-  migrations: [
-    join(process.cwd(), "apps/api/src/database/migrations/*.ts"),
-    join(process.cwd(), "dist/apps/api/database/migrations/*.js"),
-  ],
+  entities: [FormDefinitionEntity, FormComponentEntity, FormSubmissionEntity],
+  migrations: [__dirname + "/migrations/**/*{.js,.ts}"],
 };
 
 export const typeOrmModuleOptions: TypeOrmModuleOptions = {
