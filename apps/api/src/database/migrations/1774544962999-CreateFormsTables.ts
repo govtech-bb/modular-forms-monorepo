@@ -1,7 +1,6 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class AutoMigration1774536388578 implements MigrationInterface {
-    name = 'AutoMigration1774536388578'
+export class CreateFormsTables1774544962999 implements MigrationInterface {
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`CREATE TABLE "form_components" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "key" character varying(100) NOT NULL, "version" character varying(20) NOT NULL, "schema" jsonb NOT NULL, "created_at" TIMESTAMP NOT NULL DEFAULT NOW(), CONSTRAINT "UQ_9dc9f3531037f292e904975892c" UNIQUE ("key", "version"), CONSTRAINT "PK_4fa78917422bd86e5ddd4796707" PRIMARY KEY ("id"))`);
