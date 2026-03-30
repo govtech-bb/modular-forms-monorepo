@@ -1,5 +1,5 @@
 import { Column, Entity } from "typeorm";
-import { TimestampedEntity } from "./base.entity";
+import { TimestampedEntity } from "./entity-base";
 
 export enum FormSubmissionStatus {
   DRAFT = "draft",
