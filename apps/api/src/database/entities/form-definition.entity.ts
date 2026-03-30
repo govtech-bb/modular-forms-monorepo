@@ -1,10 +1,8 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity } from "typeorm";
+import { TimestampedEntity } from "./base.entity";
 
 @Entity({ name: "form_definitions" })
-export class FormDefinitionEntity {
-  @PrimaryGeneratedColumn("uuid")
-  id!: string;
-
+export class FormDefinitionEntity extends TimestampedEntity {
   @Column({ name: "form_id", type: "varchar", length: 100 })
   formId!: string;
 
@@ -16,7 +14,4 @@ export class FormDefinitionEntity {
 
   @Column({ name: "published_at", type: "timestamp", nullable: true })
   publishedAt!: Date | null;
-
-  @CreateDateColumn({ name: "created_at", type: "timestamp", default: () => "NOW()" })
-  createdAt!: Date;
 }
