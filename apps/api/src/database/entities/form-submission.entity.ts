@@ -1,10 +1,5 @@
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from "typeorm";
+import { Column, Entity } from "typeorm";
+import { TimestampedEntity } from "./base.entity";
 
 export enum FormSubmissionStatus {
   DRAFT = "draft",
@@ -15,10 +10,7 @@ export enum FormSubmissionStatus {
 }
 
 @Entity({ name: "form_submissions" })
-export class FormSubmissionEntity {
-  @PrimaryGeneratedColumn("uuid")
-  id!: string;
-
+export class FormSubmissionEntity extends TimestampedEntity {
   @Column({ name: "form_id", type: "varchar", length: 100 })
   formId!: string;
 
@@ -40,10 +32,4 @@ export class FormSubmissionEntity {
 
   @Column({ name: "submitted_at", type: "timestamp", nullable: true })
   submittedAt!: Date | null;
-
-  @CreateDateColumn({ name: "created_at", type: "timestamp", default: () => "NOW()" })
-  createdAt!: Date;
-
-  @UpdateDateColumn({ name: "updated_at", type: "timestamp", default: () => "NOW()" })
-  updatedAt!: Date;
 }

@@ -1,11 +1,9 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, Unique } from "typeorm";
+import { Column, Entity, Unique } from "typeorm";
+import { TimestampedEntity } from "./base.entity";
 
 @Entity({ name: "form_components" })
 @Unique(["key", "version"])
-export class FormComponentEntity {
-  @PrimaryGeneratedColumn("uuid")
-  id!: string;
-
+export class FormComponentEntity extends TimestampedEntity {
   @Column({ type: "varchar", length: 100 })
   key!: string;
 
@@ -14,7 +12,4 @@ export class FormComponentEntity {
 
   @Column({ type: "jsonb" })
   schema!: Record<string, unknown>;
-
-  @CreateDateColumn({ name: "created_at", type: "timestamp", default: () => "NOW()" })
-  createdAt!: Date;
 }
