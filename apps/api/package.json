@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "@govtech-bb/form-conditions": "*",
-    "@govtech-bb/form-registry": "*",
     "@govtech-bb/form-types": "*",
     "@nestjs/config": "^4.0.3",
     "@nestjs/typeorm": "^11.0.0",
