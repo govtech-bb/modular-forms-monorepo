@@ -1,5 +1,5 @@
 import { Column, Entity, Unique } from "typeorm";
-import { TimestampedEntity } from "./base.entity";
+import { TimestampedEntity } from "./entity-base";
 
 @Entity({ name: "form_components" })
 @Unique(["key", "version"])
