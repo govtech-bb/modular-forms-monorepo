@@ -310,3 +310,5 @@ class ValidationBuilder {
     return this.rules;
   }
 }
+
+export { ValidationBuilder }

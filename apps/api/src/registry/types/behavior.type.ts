@@ -9,14 +9,14 @@ export interface FieldConditionalOnBehaviour {
   type: "fieldConditionalOn";
   targetFieldId: string;
   operator?: "eq" | "neq" | "in" | "exists";
-  value: any;
+  value: string | number;
 }
 
 export interface StepConditionalOnBehaviour {
   type: "stepConditionalOn";
   targetFieldId: string;
   operator?: "eq" | "neq" | "in" | "exists";
-  value: any;
+  value: string | number;
 }
 
 export interface RepeatableBehaviour {
