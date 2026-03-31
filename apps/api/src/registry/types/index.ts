@@ -4,6 +4,12 @@ export type {
   Option,
   OptionPrimitive,
   FilePrimitive,
+  TextPrimitive,
+  DatePrimitive,
+  NumberPrimitive,
+  TelPrimitive,
+  EmailPrimitive,
+  CheckboxPrimitive,
 } from "./primitive.type";
 
 export type {

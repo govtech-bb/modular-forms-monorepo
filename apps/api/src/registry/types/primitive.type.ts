@@ -9,7 +9,7 @@ export interface PrimitiveMetadata {
 export interface BasePrimitive {
   fieldId: string;
   label: string;
-  htmlType: "text" | "number" | "date";
+  htmlType: "text" | "number" | "date" | "tel" | "email" | "checkbox" | "radio" | "file" | "select";
   placeholder?: string;
   hint?: string;
   defaultValue?: any;
@@ -22,17 +22,41 @@ export interface BasePrimitive {
   [key: string]: unknown;
 }
 
+export interface TextPrimitive extends BasePrimitive {
+  htmlType: "text";
+}
+
+export interface DatePrimitive extends BasePrimitive {
+  htmlType: "date";
+}
+
+export interface NumberPrimitive extends BasePrimitive {
+  htmlType: "number";
+}
+
+export interface TelPrimitive extends BasePrimitive {
+  htmlType: "tel";
+}
+
+export interface EmailPrimitive extends BasePrimitive {
+  htmlType: "email";
+}
+
+export interface CheckboxPrimitive extends BasePrimitive {
+  htmlType: "checkbox";
+}
+
 export interface Option {
   key: string;
   value: string;
 }
 
-export interface OptionPrimitive extends Omit<BasePrimitive, "htmlType"> {
+export interface OptionPrimitive extends BasePrimitive {
   options: Array<Option>;
   htmlType: "select" | "radio";
 }
 
-export interface FilePrimitive extends Omit<BasePrimitive, "htmlType"> {
+export interface FilePrimitive extends BasePrimitive {
   multiple: boolean;
   htmlType: "file";
 }
