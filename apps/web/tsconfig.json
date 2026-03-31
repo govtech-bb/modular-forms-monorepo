@@ -17,8 +17,7 @@
     "types": [
       "react",
       "react-dom",
-      "node",
-      "next"
+      "node"
     ]
   },
   "include": [
