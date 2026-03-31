@@ -68,6 +68,48 @@ jobs:
           container-name: api
           image: ${{ steps.build.outputs.image }}
 
+      - name: Run database migrations
+        run: |
+          TASK_DEF_ARN=$(aws ecs register-task-definition \
+            --cli-input-json "$(cat ${{ steps.new-task-def.outputs.task-definition }} | \
+              jq 'del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)')" \
+            --region $AWS_REGION \
+            --query taskDefinition.taskDefinitionArn \
+            --output text)
+          echo "Registered migration task def: $TASK_DEF_ARN"
+
+          TASK_ARN=$(aws ecs run-task \
+            --cluster $ECS_CLUSTER \
+            --task-definition "$TASK_DEF_ARN" \
+            --launch-type FARGATE \
+            --network-configuration "awsvpcConfiguration={subnets=[subnet-0dc6c8333012885b5,subnet-016eb706debe10250],securityGroups=[sg-05bfeab97a70e1081],assignPublicIp=DISABLED}" \
+            --overrides '{"containerOverrides":[{"name":"api","command":["npm","run","migration:run"]}]}' \
+            --region $AWS_REGION \
+            --query tasks[0].taskArn \
+            --output text)
+          echo "Migration task started: $TASK_ARN"
+
+          echo "Waiting for migration task to complete..."
+          aws ecs wait tasks-stopped \
+            --cluster $ECS_CLUSTER \
+            --tasks "$TASK_ARN" \
+            --region $AWS_REGION
+
+          EXIT_CODE=$(aws ecs describe-tasks \
+            --cluster $ECS_CLUSTER \
+            --tasks "$TASK_ARN" \
+            --region $AWS_REGION \
+            --query "tasks[0].containers[?name=='api'].exitCode | [0]" \
+            --output text)
+          echo "Migration exit code: $EXIT_CODE"
+
+          if [ "$EXIT_CODE" != "0" ]; then
+            echo "❌ Migration failed with exit code $EXIT_CODE"
+            echo "Check logs: aws logs tail /ecs/modular-forms-api-sandbox --follow"
+            exit 1
+          fi
+          echo "✅ Migrations completed successfully"
+
       - name: Deploy to ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v2
         with:
@@ -75,6 +117,36 @@ jobs:
           service: ${{ env.ECS_SERVICE }}
           cluster: ${{ env.ECS_CLUSTER }}
           wait-for-service-stability: true
+
+      - name: Clean up old task definition revisions
+        run: |
+          FAMILY=modular-forms-api-sandbox
+          # List all revisions sorted oldest first, keep the last 5
+          REVISIONS=$(aws ecs list-task-definitions \
+            --family-prefix "$FAMILY" \
+            --status ACTIVE \
+            --sort ASC \
+            --region $AWS_REGION \
+            --query taskDefinitionArns \
+            --output json | jq -r '.[]')
+
+          TOTAL=$(echo "$REVISIONS" | wc -l)
+          TO_DELETE=$((TOTAL - 5))
+
+          if [ "$TO_DELETE" -le 0 ]; then
+            echo "✅ Only $TOTAL revision(s) — nothing to clean up"
+            exit 0
+          fi
+
+          echo "$REVISIONS" | head -n "$TO_DELETE" | while read -r ARN; do
+            echo "Deregistering $ARN"
+            aws ecs deregister-task-definition \
+              --task-definition "$ARN" \
+              --region $AWS_REGION \
+              --query taskDefinition.taskDefinitionArn \
+              --output text
+          done
+          echo "✅ Cleaned up $TO_DELETE old revision(s)"
 
       - name: Monitor Amplify build
         id: amplify
@@ -124,3 +196,4 @@ jobs:
           echo "**Amplify Job:** ${{ steps.amplify.outputs.job_id }}" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "Check API logs: \`aws logs tail /ecs/modular-forms-api-sandbox --follow\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "Check migration logs: \`aws logs tail /ecs/modular-forms-api-sandbox --follow --filter-pattern migration\`" >> "$GITHUB_STEP_SUMMARY"
