@@ -9,7 +9,7 @@ export interface PrimitiveMetadata {
 export interface BasePrimitive {
   fieldId: string;
   label: string;
-  htmlType: "text" | "number" | "date" | "tel" | "email" | "checkbox" | "radio" | "file" | "select";
+  htmlType: "text" | "textarea" | "number" | "date" | "tel" | "email" | "checkbox" | "radio" | "file" | "select";
   placeholder?: string;
   hint?: string;
   defaultValue?: any;
@@ -24,6 +24,10 @@ export interface BasePrimitive {
 
 export interface TextPrimitive extends BasePrimitive {
   htmlType: "text";
+}
+
+export interface TextareaPrimitive extends BasePrimitive {
+  htmlType: "textarea";
 }
 
 export interface DatePrimitive extends BasePrimitive {
