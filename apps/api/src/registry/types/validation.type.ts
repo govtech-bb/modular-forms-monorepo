@@ -1,6 +1,7 @@
 export interface ValidationConfig {
   error?: string;
   value?: any;
+  reference?: string;
 }
 
 export type ValidationType =
@@ -32,6 +33,11 @@ export type ValidationType =
   | "fileTypes"
   | "itemMaxSize"
   | "maxSize"
+  | "eq"
+  | "neq"
+  | "gt"
+  | "lt"
+  | "contains"
   | "equality"
   | "strictEquality";
 
