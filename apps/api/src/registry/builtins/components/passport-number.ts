@@ -1,6 +1,6 @@
 import type { TextPrimitive } from "../../types";
 
-export const passportNumber: TextPrimitive = {
+export const PassportNumber: TextPrimitive = {
     fieldId: "passport-number",
     label: "Passport number",
     htmlType: "text",
