@@ -3,7 +3,7 @@ frontend:
   phases:
     preBuild:
       commands:
-        - npm ci --ignore-scripts
+        - npm install --ignore-scripts
     build:
       commands:
         - npx nx build web
