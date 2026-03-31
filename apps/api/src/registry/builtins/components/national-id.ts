@@ -1,7 +1,7 @@
 import type { TextPrimitive } from "../../types";
 
-export const NationalId: TextPrimitive = {
-    fieldId: "national-id",
-    label: "National ID",
+export const NationalIdNumber: TextPrimitive = {
+    fieldId: "national-id-number",
+    label: "National ID number",
     htmlType: "text",
 }
