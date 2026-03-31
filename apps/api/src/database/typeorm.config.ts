@@ -7,6 +7,10 @@ const port = Number(process.env.DB_PORT || 5432);
 const username = process.env.DB_USERNAME || "postgres";
 const password = process.env.DB_PASSWORD || "postgres";
 const database = process.env.DB_DATABASE || "postgres";
+const ssl =
+  process.env.NODE_ENV === "production"
+    ? { rejectUnauthorized: false }
+    : false;
 
 export const dataSourceOptions: DataSourceOptions = {
   type: "postgres",
@@ -15,6 +19,7 @@ export const dataSourceOptions: DataSourceOptions = {
   username,
   password,
   database,
+  ssl,
   entities: [join(__dirname, "entities", "*.entity.{ts,js}")],
   migrations: [__dirname + "/migrations/**/*{.js,.ts}"],
 };

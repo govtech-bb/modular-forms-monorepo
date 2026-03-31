@@ -16,6 +16,10 @@ WORKDIR /app
 COPY --from=builder /app/dist/apps/api/ ./dist/
 COPY --from=builder /app/dist/packages/ ./packages/
 COPY --from=builder /app/node_modules/ ./node_modules/
+COPY --from=builder /app/package.json ./
+COPY --from=builder /app/tsconfig.base.json ./
+COPY --from=builder /app/apps/api/tsconfig.json ./apps/api/
+COPY --from=builder /app/apps/api/src/database/ ./apps/api/src/database/
 
 ENV NODE_ENV=production
 EXPOSE 3001
