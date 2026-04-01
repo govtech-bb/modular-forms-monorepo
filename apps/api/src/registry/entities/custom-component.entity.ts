@@ -1,28 +1,14 @@
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Column, Entity } from 'typeorm';
+import { TimestampedEntity } from '../../database/entities/entity-base';
 
-@Entity('custom_components')
-export class CustomComponent {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
-  @Column()
+@Entity({ name: 'custom_components' })
+export class CustomComponent extends TimestampedEntity {
+  @Column({ type: 'varchar', length: 100 })
   namespace: string;
 
-  @Column()
+  @Column({ type: 'varchar', length: 100 })
   type: string;
 
   @Column({ type: 'jsonb' })
   definition: Record<string, unknown>;
-
-  @CreateDateColumn({ name: 'created_at' })
-  createdAt: Date;
-
-  @UpdateDateColumn({ name: 'updated_at' })
-  updatedAt: Date;
 }
