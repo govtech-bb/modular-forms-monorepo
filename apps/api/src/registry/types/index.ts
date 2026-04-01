@@ -1,6 +1,7 @@
 export type {
   PrimitiveMetadata,
   BasePrimitive,
+  FieldOverrides,
   Option,
   OptionPrimitive,
   FilePrimitive,
@@ -33,6 +34,8 @@ export type {
   FormStep,
   RecipeFormStep,
   RecipeFormStepField,
+  RecipeComponentField,
+  RecipeBlockField,
 } from "./form-step.type";
 
 export type { Processor } from "./processor.type";

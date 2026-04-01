@@ -64,3 +64,8 @@ export interface FilePrimitive extends BasePrimitive {
   multiple: boolean;
   htmlType: "file";
 }
+
+export type FieldOverrides = Pick<
+  Partial<BasePrimitive>,
+  'label' | 'hint' | 'placeholder' | 'validations' | 'defaultValue' | 'isDisabled' | 'isVisible'
+>;

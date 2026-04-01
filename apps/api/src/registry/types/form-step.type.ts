@@ -1,5 +1,6 @@
 import type {
   BasePrimitive,
+  FieldOverrides,
   OptionPrimitive,
   FilePrimitive,
 } from "./primitive.type";
@@ -14,11 +15,18 @@ export interface FormStep {
   behaviours?: Array<Behaviour>; // Behaviour to apply on the step level.
 }
 
-export interface RecipeFormStep extends Omit<FormStep, "elements"> {
-  elements: Array<RecipeFormStepField>;
+export interface RecipeComponentField {
+  ref: `components/${string}`;
+  overrides?: FieldOverrides;
 }
 
-export interface RecipeFormStepField {
-  ref: string; // This is a reference to a component in the registry
-  overrides?: Partial<BasePrimitive>;
+export interface RecipeBlockField {
+  ref: `blocks/${string}`;
+  overrides?: Record<string, FieldOverrides>; // keyed by fieldId within the block
+}
+
+export type RecipeFormStepField = RecipeComponentField | RecipeBlockField;
+
+export interface RecipeFormStep extends Omit<FormStep, "elements"> {
+  elements: Array<RecipeFormStepField>;
 }
