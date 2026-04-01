@@ -1,10 +1,23 @@
-import { Module } from "@nestjs/common";
-import { TypeOrmModule } from "@nestjs/typeorm";
-import { AppController } from "./app.controller";
-import { typeOrmModuleOptions } from "./database/typeorm.config";
+import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { AppController } from './app.controller';
+import { DatabaseModule } from './database/database.module';
+import { configs } from './config';
+import { envValidationSchema } from './config/env.validation';
 
 @Module({
-  imports: [TypeOrmModule.forRoot(typeOrmModuleOptions)],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: configs,
+      validationSchema: envValidationSchema,
+      validationOptions: {
+        allowUnknown: true,
+        abortEarly: false,
+      },
+    }),
+    DatabaseModule,
+  ],
   controllers: [AppController],
 })
 export class AppModule {}
