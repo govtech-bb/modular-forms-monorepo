@@ -36,7 +36,8 @@ export interface BasePrimitive {
   behaviours?: Behaviour[];
   validations?: Partial<ValidationRule>[];
   metadata?: Partial<PrimitiveMetadata>;
-  [key: string]: unknown;
+  options?: Array<Option>;
+  multiple?: boolean;
 }
 
 export interface TextPrimitive extends BasePrimitive {
@@ -89,10 +90,6 @@ export type Primitive =
   | RadioPrimitive
   | FilePrimitive
 
-export type FieldOverrides =
-  | Pick<
-    Partial<BasePrimitive>,
-    'label' | 'hint' | 'placeholder' | 'validations' | 'defaultValue' | 'isDisabled' | 'isVisible'
-  >
-  | 'options'
-  | 'multiple';
+export type FieldOverrides = Pick<Partial<Primitive>,
+  'label' | 'hint' | 'placeholder' | 'validations' | 'defaultValue' | 'isDisabled' | 'isVisible' | 'multiple' | 'options'
+>
