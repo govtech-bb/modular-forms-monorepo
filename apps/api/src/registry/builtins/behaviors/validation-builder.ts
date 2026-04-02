@@ -13,7 +13,7 @@ class ValidationBuilder {
   required(value?: boolean, error?: string): this {
     this.rules["required"] = {
       value: value ?? true,
-      error: error ?? `${this.fieldLabel} is requaluired`,
+      error: error ?? `${this.fieldLabel} is required`,
     };
     return this;
   }
