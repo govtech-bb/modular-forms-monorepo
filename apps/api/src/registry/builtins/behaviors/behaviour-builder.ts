@@ -18,7 +18,7 @@ class BehaviourBuilder {
   fieldConditionalOn(
     targetFieldId: string,
     value: string | number,
-    operator?: "eq" | "neq" | "in" | "exists",
+    operator?: "equal" | "notEqual" | "in" | "exists",
   ): this {
     const behaviour: FieldConditionalOnBehaviour = {
       type: "fieldConditionalOn",
@@ -33,7 +33,7 @@ class BehaviourBuilder {
   stepConditionalOn(
     targetFieldId: string,
     value: string | number,
-    operator?: "eq" | "neq" | "in" | "exists",
+    operator?: "equal" | "notEqual" | "in" | "exists",
   ): this {
     const behaviour: StepConditionalOnBehaviour = {
       type: "stepConditionalOn",
@@ -45,7 +45,7 @@ class BehaviourBuilder {
     return this;
   }
 
-  repeatable(min?: number, max?: number): this {
+  repeatable(min: number = 1, max: number = 10): this {
     const behaviour: RepeatableBehaviour = {
       type: "repeatable",
       min,
@@ -55,7 +55,7 @@ class BehaviourBuilder {
     return this;
   }
 
-  fieldArray(min?: number, max?: number): this {
+  fieldArray(min: number = 1, max: number = 10): this {
     const behaviour: FieldArrayBehaviour = {
       type: "fieldArray",
       min,

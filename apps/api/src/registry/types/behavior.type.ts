@@ -8,27 +8,27 @@ export type Behaviour =
 export interface FieldConditionalOnBehaviour {
   type: "fieldConditionalOn";
   targetFieldId: string;
-  operator?: "eq" | "neq" | "in" | "exists";
+  operator?: "equal" | "notEqual" | "in" | "exists";
   value: string | number;
 }
 
 export interface StepConditionalOnBehaviour {
   type: "stepConditionalOn";
   targetFieldId: string;
-  operator?: "eq" | "neq" | "in" | "exists";
+  operator?: "equal" | "notEqual" | "in" | "exists";
   value: string | number;
 }
 
 export interface RepeatableBehaviour {
   type: "repeatable";
-  min?: number;
-  max?: number;
+  min: number;
+  max: number;
 }
 
 export interface FieldArrayBehaviour {
   type: "fieldArray";
-  min?: number;
-  max?: number;
+  min: number;
+  max: number;
 }
 
 export interface SharedFieldsBehaviour {

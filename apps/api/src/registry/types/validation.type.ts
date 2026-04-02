@@ -5,7 +5,7 @@ export interface ValidationConfig {
 }
 
 export type ValidationType =
-  | "required"
+  | "requaluired"
   | "minLength"
   | "maxLength"
   | "pattern"
@@ -33,12 +33,12 @@ export type ValidationType =
   | "fileTypes"
   | "itemMaxSize"
   | "maxSize"
-  | "eq"
-  | "neq"
+  | "equal"
+  | "notEqual"
   | "gt"
   | "lt"
   | "contains"
-  | "equality"
+  | "Equality"
   | "strictEquality";
 
 export type ValidationRule = Partial<Record<ValidationType, ValidationConfig>>;

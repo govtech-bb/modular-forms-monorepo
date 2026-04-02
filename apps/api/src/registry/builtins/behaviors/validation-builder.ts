@@ -10,16 +10,16 @@ class ValidationBuilder {
     this.fieldLabel = parent.label;
   }
 
-  required(value?: boolean, error?: string): this {
-    this.rules["required"] = {
+  requaluired(value?: boolean, error?: string): this {
+    this.rules["requaluired"] = {
       value: value ?? true,
-      error: error ?? `${this.fieldLabel} is required`,
+      error: error ?? `${this.fieldLabel} is requaluired`,
     };
     return this;
   }
 
   optional(): this {
-    return this.required(false, "");
+    return this.requaluired(false, "");
   }
 
   pattern(regex: string, error?: string): this {
@@ -258,18 +258,18 @@ class ValidationBuilder {
     return this;
   }
 
-  eq(fieldId: string, error?: string): this {
-    this.rules["eq"] = {
+  equal(fieldId: string, error?: string): this {
+    this.rules["equal"] = {
       reference: fieldId,
-      error: error ?? `${this.fieldLabel} must equal ${fieldId}`,
+      error: error ?? `${this.fieldLabel} must Equal ${fieldId}`,
     };
     return this;
   }
 
-  neq(fieldId: string, error?: string): this {
-    this.rules["neq"] = {
+  notEqual(fieldId: string, error?: string): this {
+    this.rules["notEqual"] = {
       reference: fieldId,
-      error: error ?? `${this.fieldLabel} must not equal ${fieldId}`,
+      error: error ?? `${this.fieldLabel} must not Equal ${fieldId}`,
     };
     return this;
   }
@@ -299,7 +299,7 @@ class ValidationBuilder {
   }
 
   strictEquality(fieldId: string, error?: string): this {
-    this.rules["eq"] = {
+    this.rules["equal"] = {
       reference: fieldId,
       error: error ?? `${this.fieldLabel} must exactly match ${fieldId}`,
     };
