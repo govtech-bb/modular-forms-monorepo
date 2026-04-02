@@ -66,7 +66,7 @@ export async function hydrateStep(
   );
 
   return {
-    step_id: step.step_id,
+    stepId: step.stepId,
     title: step.title,
     description: step.description,
     behaviours: step.behaviours,

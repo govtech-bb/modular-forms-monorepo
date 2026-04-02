@@ -80,7 +80,7 @@ describe('hydrateStep', () => {
   it('resolves all elements in a step', async () => {
     const resolver = jest.fn().mockResolvedValue(primitiveEntry);
     const result = await hydrateStep(
-      { step_id: 'step-1', title: 'Step 1', elements: [{ ref: 'components/first-name' }] },
+      { stepId: 'step-1', title: 'Step 1', elements: [{ ref: 'components/first-name' }] },
       resolver,
     );
     expect(result.elements).toHaveLength(1);
@@ -91,7 +91,7 @@ describe('hydrateStep', () => {
     const resolver = jest.fn().mockResolvedValue(null);
     await expect(
       hydrateStep(
-        { step_id: 'step-1', title: 'Step 1', elements: [{ ref: 'components/unknown' }] },
+        { stepId: 'step-1', title: 'Step 1', elements: [{ ref: 'components/unknown' }] },
         resolver,
       ),
     ).rejects.toThrow(UnresolvableComponentError);
@@ -112,7 +112,7 @@ describe('hydrateForm', () => {
     updatedAt: new Date('2026-01-01'),
     processors: [],
     steps: [
-      { step_id: 'step-1', title: 'Step 1', elements: [{ ref: 'components/first-name' as const }] },
+      { stepId: 'step-1', title: 'Step 1', elements: [{ ref: 'components/first-name' as const }] },
     ],
   };
 
@@ -173,7 +173,7 @@ describe('RegistryService', () => {
         ...base,
         steps: [
           {
-            step_id: 'step-1',
+            stepId: 'step-1',
             title: 'Step 1',
             elements: [
               { ref: 'components/first-name' as const },
@@ -190,7 +190,7 @@ describe('RegistryService', () => {
         ...base,
         steps: [
           {
-            step_id: 'step-1',
+            stepId: 'step-1',
             title: 'Step 1',
             elements: [
               { ref: 'components/first-name' as const, overrides: { label: 'Given Name' } },
@@ -206,7 +206,7 @@ describe('RegistryService', () => {
         ...base,
         steps: [
           {
-            step_id: 'step-1',
+            stepId: 'step-1',
             title: 'Step 1',
             elements: [
               {
@@ -227,7 +227,7 @@ describe('RegistryService', () => {
         makeService().hydrateForm({
           ...base,
           steps: [
-            { step_id: 'step-1', title: 'Step 1', elements: [{ ref: 'components/ghost' as const }] },
+            { stepId: 'step-1', title: 'Step 1', elements: [{ ref: 'components/ghost' as const }] },
           ],
         }),
       ).rejects.toThrow(UnresolvableComponentError);

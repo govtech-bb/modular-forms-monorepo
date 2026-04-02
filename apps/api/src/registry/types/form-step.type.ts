@@ -8,7 +8,7 @@ import type { Block } from "./block.type";
 import type { Behaviour } from "./behavior.type";
 
 export interface FormStep {
-  step_id: string; // ID for the step
+  stepId: string; // ID for the step
   title: string; // Title to display for the page
   description?: string; // Optional subheading to display
   elements: Array<BasePrimitive | Block | OptionPrimitive | FilePrimitive>; // Makes up the fields.
