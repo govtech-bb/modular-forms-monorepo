@@ -29,3 +29,4 @@ export { Telephone } from "./telephone";
 export { Town } from "./town";
 export { UploadDocument } from "./upload-document";
 export { WorkTelephone } from "./work-telephone";
+export { Title } from "./title";
