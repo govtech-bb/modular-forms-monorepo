@@ -105,55 +105,55 @@ class ValidationBuilder {
     return this;
   }
 
-  getDateAsMDY(date: Date): string {
-    // Returns a date as MM/DD/YYYY
+  getDateAsStr(date: Date): string {
+    // Returns a date as DD/MM/YYYY
 
     const year = date.getFullYear();
     const month = date.getMonth() + 1;
     const day = date.getDay();
 
-    const result = `${month}/${day}/${year}`;
+    const result = `${day}/${month}/${year}`;
     return result;
   }
 
   after(date: Date, error?: string): this {
-    const dateStr: string = this.getDateAsMDY(date);
+    const dateStr: string = this.getDateAsStr(date);
     this.rules["after"] = {
       value: dateStr,
       error:
-        error ?? `${this.fieldLabel} must be after ${dateStr} (MM/DD/YYYY)`,
+        error ?? `${this.fieldLabel} must be after ${dateStr} (DD/MM/YYYY)`,
     };
     return this;
   }
 
   before(date: Date, error?: string): this {
-    const dateStr: string = this.getDateAsMDY(date);
+    const dateStr: string = this.getDateAsStr(date);
     this.rules["before"] = {
       value: dateStr,
       error:
-        error ?? `${this.fieldLabel} must be before ${dateStr} (MM/DD/YYYY)`,
+        error ?? `${this.fieldLabel} must be before ${dateStr} (DD/MM/YYYY)`,
     };
     return this;
   }
 
   onOrAfter(date: Date, error?: string): this {
-    const dateStr: string = this.getDateAsMDY(date);
+    const dateStr: string = this.getDateAsStr(date);
     this.rules["onOrAfter"] = {
       value: dateStr,
       error:
         error ??
-        `${this.fieldLabel} must be on or after ${dateStr} (MM/DD/YYYY)`,
+        `${this.fieldLabel} must be on or after ${dateStr} (DD/MM/YYYY)`,
     };
     return this;
   }
 
   onOrBefore(date: Date, error?: string): this {
-    const dateStr: string = this.getDateAsMDY(date);
+    const dateStr: string = this.getDateAsStr(date);
     this.rules["onOrBefore"] = {
       value: dateStr,
       error:
         error ??
-        `${this.fieldLabel} must be on or before ${dateStr} (MM/DD/YYYY)`,
+        `${this.fieldLabel} must be on or before ${dateStr} (DD/MM/YYYY)`,
     };
     return this;
   }
@@ -207,20 +207,22 @@ class ValidationBuilder {
     return this;
   }
 
-  minSelection(value: number, error?: string): this {
+  minSelection(value: number = 1, error: string = ""): this {
+    if (value <= 1) value = 1;
     this.rules["minSelection"] = {
       value,
       error:
-        error ?? `${this.fieldLabel} must have at least ${value} selections`,
+        error ?? `${this.fieldLabel} must have at least ${value} ${value === 1 ? "selection" : "selections"}`,
     };
     return this;
   }
 
   maxSelection(value: number, error?: string): this {
+    if (value <= 1) value = 1;
     this.rules["maxSelection"] = {
       value,
       error:
-        error ?? `${this.fieldLabel} must have at most ${value} selections`,
+        error ?? `${this.fieldLabel} must have at most ${value} ${value === 1 ? "selection" : "selections"}`,
     };
     return this;
   }
@@ -244,7 +246,7 @@ class ValidationBuilder {
     this.rules["itemMaxSize"] = {
       value: bytes,
       error:
-        error ?? `${this.fieldLabel} each item must be at most ${bytes} bytes`,
+        error ?? `${this.fieldLabel} each item must be at most ${bytes} ${bytes == 1 ? 'byte' : 'bytes'}`,
     };
     return this;
   }
@@ -253,7 +255,7 @@ class ValidationBuilder {
     this.rules["maxSize"] = {
       value: bytes,
       error:
-        error ?? `${this.fieldLabel} total size must be at most ${bytes} bytes`,
+        error ?? `${this.fieldLabel} total size must be at most ${bytes} ${bytes == 1 ? 'byte' : 'bytes'}`,
     };
     return this;
   }
@@ -261,7 +263,7 @@ class ValidationBuilder {
   equal(fieldId: string, error?: string): this {
     this.rules["equal"] = {
       reference: fieldId,
-      error: error ?? `${this.fieldLabel} must Equal ${fieldId}`,
+      error: error ?? `${this.fieldLabel} must equal ${fieldId}'s value`,
     };
     return this;
   }
@@ -269,7 +271,7 @@ class ValidationBuilder {
   notEqual(fieldId: string, error?: string): this {
     this.rules["notEqual"] = {
       reference: fieldId,
-      error: error ?? `${this.fieldLabel} must not Equal ${fieldId}`,
+      error: error ?? `${this.fieldLabel} must not equal ${fieldId}'s value`,
     };
     return this;
   }
@@ -277,7 +279,7 @@ class ValidationBuilder {
   gt(fieldId: string, error?: string): this {
     this.rules["gt"] = {
       reference: fieldId,
-      error: error ?? `${this.fieldLabel} must be greater than ${fieldId}`,
+      error: error ?? `${this.fieldLabel} must be greater than ${fieldId}'s value`,
     };
     return this;
   }
@@ -285,7 +287,7 @@ class ValidationBuilder {
   lt(fieldId: string, error?: string): this {
     this.rules["lt"] = {
       reference: fieldId,
-      error: error ?? `${this.fieldLabel} must be less than ${fieldId}`,
+      error: error ?? `${this.fieldLabel} must be less than ${fieldId}'s value`,
     };
     return this;
   }
@@ -301,7 +303,7 @@ class ValidationBuilder {
   strictEquality(fieldId: string, error?: string): this {
     this.rules["equal"] = {
       reference: fieldId,
-      error: error ?? `${this.fieldLabel} must exactly match ${fieldId}`,
+      error: error ?? `${this.fieldLabel} must exactly match ${fieldId}'s value`,
     };
     return this;
   }
