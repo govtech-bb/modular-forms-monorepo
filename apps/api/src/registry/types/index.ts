@@ -3,7 +3,8 @@ export type {
   BasePrimitive,
   FieldOverrides,
   Option,
-  OptionPrimitive,
+  SelectPrimitive,
+  RadioPrimitive,
   FilePrimitive,
   TextPrimitive,
   DatePrimitive,
@@ -11,6 +12,7 @@ export type {
   TelPrimitive,
   EmailPrimitive,
   CheckboxPrimitive,
+  Primitive,
 } from "./primitive.type";
 
 export type {

@@ -1,8 +1,9 @@
-import type { OptionPrimitive } from "../../types";
+import type { SelectPrimitive } from "../../types";
 
-export const Parish: OptionPrimitive = {
+export const Parish: SelectPrimitive = {
     fieldId: "parish",
     label: "Parish",
     htmlType: "select",
     options: [],
+    multiple: false,
 }

@@ -1,6 +1,6 @@
-import { OptionPrimitive } from "../../types";
+import { RadioPrimitive } from "../../types";
 
-export const Sex: OptionPrimitive = {
+export const Sex: RadioPrimitive = {
   fieldId: "sex",
   htmlType: "radio",
   label: "Sex",

@@ -1,8 +1,9 @@
-import type { OptionPrimitive } from "../../types";
+import type { SelectPrimitive } from "../../types";
 
-export const AccountType : OptionPrimitive = {
+export const AccountType: SelectPrimitive = {
     fieldId: "account-type",
     label: "Account type",
     htmlType: "select",
     options: [],
+    multiple: false,
 }

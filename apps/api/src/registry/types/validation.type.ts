@@ -5,7 +5,7 @@ export interface ValidationConfig {
 }
 
 export type ValidationType =
-  | "requaluired"
+  | "required"
   | "minLength"
   | "maxLength"
   | "pattern"

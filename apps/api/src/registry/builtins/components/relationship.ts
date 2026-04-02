@@ -1,8 +1,9 @@
-import { OptionPrimitive } from "../../types";
+import { SelectPrimitive } from "../../types";
 
-export const Relationship: OptionPrimitive = {
+export const Relationship: SelectPrimitive = {
   fieldId: "relationship",
   htmlType: "select",
   label: "Relationship",
-  options: []
+  options: [],
+  multiple: false,
 }

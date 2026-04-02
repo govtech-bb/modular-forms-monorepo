@@ -1,4 +1,4 @@
-import type { BasePrimitive, FieldOverrides } from './types/primitive.type';
+import type { Primitive, FieldOverrides } from './types/primitive.type';
 import type { Block } from './types/block.type';
 import type { FormStep, RecipeFormStep, RecipeFormStepField } from './types/form-step.type';
 import type { ServiceContract, ServiceContractRecipe } from './types/service-contract.type';
@@ -18,9 +18,9 @@ function isBlock(entry: RegistryEntry): entry is Block {
 }
 
 function applyPrimitiveOverrides(
-  primitive: BasePrimitive,
+  primitive: Primitive,
   overrides: FieldOverrides,
-): BasePrimitive {
+): Primitive {
   return { ...primitive, ...overrides };
 }
 
@@ -50,7 +50,7 @@ export function mergeEntry(
     return applyBlockOverrides(cloned, field.overrides as Record<string, FieldOverrides>);
   }
 
-  return applyPrimitiveOverrides(cloned as BasePrimitive, field.overrides as FieldOverrides);
+  return applyPrimitiveOverrides(cloned as Primitive, field.overrides as FieldOverrides);
 }
 
 export async function hydrateStep(

@@ -1,8 +1,6 @@
 import type {
-  BasePrimitive,
   FieldOverrides,
-  OptionPrimitive,
-  FilePrimitive,
+  Primitive,
 } from "./primitive.type";
 import type { Block } from "./block.type";
 import type { Behaviour } from "./behavior.type";
@@ -11,7 +9,7 @@ export interface FormStep {
   stepId: string; // ID for the step
   title: string; // Title to display for the page
   description?: string; // Optional subheading to display
-  elements: Array<BasePrimitive | Block | OptionPrimitive | FilePrimitive>; // Makes up the fields.
+  elements: Array<Primitive | Block>; // Makes up the fields.
   behaviours?: Array<Behaviour>; // Behaviour to apply on the step level.
 }
 

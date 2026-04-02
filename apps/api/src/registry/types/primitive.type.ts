@@ -6,10 +6,27 @@ export interface PrimitiveMetadata {
   sensitive: boolean;
 }
 
+export type HtmlTypes =
+  | "text"
+  | "textarea"
+  | "number"
+  | "date"
+  | "tel"
+  | "email"
+  | "checkbox"
+  | "radio"
+  | "file"
+  | "select";
+
+export interface Option {
+  key: string;
+  value: string;
+}
+
 export interface BasePrimitive {
   fieldId: string;
   label: string;
-  htmlType: "text" | "textarea" | "number" | "date" | "tel" | "email" | "checkbox" | "radio" | "file" | "select";
+  htmlType: HtmlTypes;
   placeholder?: string;
   hint?: string;
   defaultValue?: any;
@@ -50,14 +67,15 @@ export interface CheckboxPrimitive extends BasePrimitive {
   htmlType: "checkbox";
 }
 
-export interface Option {
-  key: string;
-  value: string;
+export interface SelectPrimitive extends BasePrimitive {
+  options: Array<Option>;
+  htmlType: "select";
+  multiple: boolean;
 }
 
-export interface OptionPrimitive extends BasePrimitive {
+export interface RadioPrimitive extends BasePrimitive {
   options: Array<Option>;
-  htmlType: "select" | "radio";
+  htmlType: "radio";
 }
 
 export interface FilePrimitive extends BasePrimitive {
@@ -65,7 +83,16 @@ export interface FilePrimitive extends BasePrimitive {
   htmlType: "file";
 }
 
-export type FieldOverrides = Pick<
-  Partial<BasePrimitive>,
-  'label' | 'hint' | 'placeholder' | 'validations' | 'defaultValue' | 'isDisabled' | 'isVisible'
->;
+export type Primitive =
+  | BasePrimitive
+  | SelectPrimitive
+  | RadioPrimitive
+  | FilePrimitive
+
+export type FieldOverrides =
+  | Pick<
+    Partial<BasePrimitive>,
+    'label' | 'hint' | 'placeholder' | 'validations' | 'defaultValue' | 'isDisabled' | 'isVisible'
+  >
+  | 'options'
+  | 'multiple';

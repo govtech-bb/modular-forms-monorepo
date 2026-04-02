@@ -1,16 +1,16 @@
-import { ValidationRule, BasePrimitive } from "../../types";
+import { ValidationRule, Primitive } from "../../types";
 
 class ValidationBuilder {
   fieldId: string;
   fieldLabel: string;
   rules: ValidationRule = {};
 
-  constructor(parent: BasePrimitive) {
+  constructor(parent: Primitive) {
     this.fieldId = parent.fieldId;
     this.fieldLabel = parent.label;
   }
 
-  requaluired(value?: boolean, error?: string): this {
+  required(value?: boolean, error?: string): this {
     this.rules["requaluired"] = {
       value: value ?? true,
       error: error ?? `${this.fieldLabel} is requaluired`,
@@ -19,7 +19,7 @@ class ValidationBuilder {
   }
 
   optional(): this {
-    return this.requaluired(false, "");
+    return this.required(false, "");
   }
 
   pattern(regex: string, error?: string): this {

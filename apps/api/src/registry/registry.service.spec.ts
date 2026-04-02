@@ -3,7 +3,7 @@ import { mergeEntry, hydrateStep, hydrateForm } from './resolution';
 import { CustomComponent } from './entities/custom-component.entity';
 import { BUILTIN_REGISTRY } from './builtins';
 import type { Block } from './types/block.type';
-import type { BasePrimitive } from './types/primitive.type';
+import type { Primitive } from './types/primitive.type';
 import { Repository } from 'typeorm';
 
 function makeService(customComponents: Partial<CustomComponent>[] = []): RegistryService {
@@ -16,7 +16,7 @@ function makeService(customComponents: Partial<CustomComponent>[] = []): Registr
 // ─── mergeEntry ────────────────────────────────────────────────────────────
 
 describe('mergeEntry', () => {
-  const primitiveEntry = BUILTIN_REGISTRY['components/first-name'] as BasePrimitive;
+  const primitiveEntry = BUILTIN_REGISTRY['components/first-name'] as Primitive;
   const blockEntry = BUILTIN_REGISTRY['blocks/personal-information'] as Block;
 
   it('returns a deep clone when no overrides provided', () => {
