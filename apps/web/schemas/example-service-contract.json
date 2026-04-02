@@ -18,7 +18,8 @@
           "options": [
             { "label": "Mr", "value": "mr" },
             { "label": "Ms", "value": "ms" },
-            { "label": "Mrs", "value": "mrs" }
+            { "label": "Mrs", "value": "mrs" },
+            { "label": "Dr", "value": "dr" }
           ],
           "validations": [
             { "required": { "value": true, "error": "Title is required" } }
