@@ -6,15 +6,15 @@ export const Title: SelectPrimitive = {
   label: "Title",
   options: [
     {
-      key: "Mr",
+      label: "Mr",
       value: "mr"
     },
     {
-      key: "Miss",
+      label: "Miss",
       value: "miss"
     },
     {
-      key: "Mrs",
+      label: "Mrs",
       value: "mrs"
     }
   ],

@@ -6,11 +6,11 @@ export const Sex: RadioPrimitive = {
   label: "Sex",
   options: [
     {
-      key: "Male",
+      label: "Male",
       value: "male"
     },
     {
-      key: "Female",
+      label: "Female",
       value: "female"
     }
   ]
