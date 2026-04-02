@@ -36,7 +36,6 @@ export type ValidationType =
   | "gt"
   | "lt"
   | "contains"
-  | "Equality"
   | "strictEquality";
 
 export type ValidationRule = Partial<Record<ValidationType, ValidationConfig>>;

@@ -8,14 +8,14 @@ export type Behaviour =
 export interface FieldConditionalOnBehaviour {
   type: "fieldConditionalOn";
   targetFieldId: string;
-  operator?: "equal" | "notEqual" | "in" | "exists";
+  operator: "equal" | "notEqual" | "in" | "exists";
   value: string | number;
 }
 
 export interface StepConditionalOnBehaviour {
   type: "stepConditionalOn";
   targetFieldId: string;
-  operator?: "equal" | "notEqual" | "in" | "exists";
+  operator: "equal" | "notEqual" | "in" | "exists";
   value: string | number;
 }
 

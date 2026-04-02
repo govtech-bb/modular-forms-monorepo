@@ -18,7 +18,7 @@ class BehaviourBuilder {
   fieldConditionalOn(
     targetFieldId: string,
     value: string | number,
-    operator?: "equal" | "notEqual" | "in" | "exists",
+    operator: "equal" | "notEqual" | "in" | "exists" = "exists",
   ): this {
     const behaviour: FieldConditionalOnBehaviour = {
       type: "fieldConditionalOn",
@@ -33,7 +33,7 @@ class BehaviourBuilder {
   stepConditionalOn(
     targetFieldId: string,
     value: string | number,
-    operator?: "equal" | "notEqual" | "in" | "exists",
+    operator: "equal" | "notEqual" | "in" | "exists" = "exists",
   ): this {
     const behaviour: StepConditionalOnBehaviour = {
       type: "stepConditionalOn",
