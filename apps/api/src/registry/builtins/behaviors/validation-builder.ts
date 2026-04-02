@@ -11,7 +11,7 @@ class ValidationBuilder {
   }
 
   required(value?: boolean, error?: string): this {
-    this.rules["requaluired"] = {
+    this.rules["required"] = {
       value: value ?? true,
       error: error ?? `${this.fieldLabel} is requaluired`,
     };
@@ -158,11 +158,20 @@ class ValidationBuilder {
     return this;
   }
 
-  between(min: number, max: number, error?: string): this {
-    this.rules["between"] = {
-      value: { min, max },
-      error: error ?? `${this.fieldLabel} must be between ${min} and ${max}`,
-    };
+  betweenNumbers(min: number, max: number, error?: string): this {
+    const betweenError = error ?? `${this.fieldLabel} must be between ${min} and ${max}`;
+
+    this.min(min, betweenError);
+    this.max(max, betweenError)
+    return this;
+  }
+
+  betweenDates(startDate: Date, endDate: Date, error?: string): this {
+    const betweenError = error ?? `${this.fieldLabel} must be between ${startDate} and ${endDate}`;
+
+    this.onOrBefore(endDate, betweenError);
+    this.onOrAfter(startDate, betweenError);
+
     return this;
   }
 
@@ -194,15 +203,6 @@ class ValidationBuilder {
     this.rules["maxItems"] = {
       value,
       error: error ?? `${this.fieldLabel} must have at most ${value} items`,
-    };
-    return this;
-  }
-
-  showHide(fieldId: string, error?: string): this {
-    this.rules["showHide"] = {
-      value: true,
-      reference: fieldId,
-      error: error ?? `${this.fieldLabel} controls visibility of ${fieldId}`,
     };
     return this;
   }
