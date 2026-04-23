@@ -35,6 +35,8 @@ import {
 } from "./validation-methods";
 import { AnyFieldApi } from "@tanstack/react-form";
 import { ValidationRule } from "@govtech-bb/form-types";
+import { validate } from "@govtech-bb/form-validation";
+import type { Primitive } from "@govtech-bb/form-types";
 
 export const buildValidation = (
   contract: ClientServiceContract,
@@ -65,9 +67,21 @@ export const buildValidation = (
 export const buildFieldValidation = (
   field: ClientPrimitive,
 ): FieldValidation => {
-  // TODO: Flesh this out based on field validation methods.
-  const fieldSchema: z.ZodType<unknown> = z.object({});
+  const primitive = clientPrimitiveToPrimitive(field);
+
+  const fieldSchema = z.any().superRefine((value, ctx) => {
+    const result = validate({
+      primitives: [primitive],
+      stepValues: { [field.name]: value },
+    });
+
+    for (const msg of result.errors[field.name] ?? []) {
+      ctx.addIssue({ code: "custom", message: msg });
+    }
+  });
+
   const properties = buildFieldValidationProperties(field);
+
   return {
     fieldSchema,
     properties,
