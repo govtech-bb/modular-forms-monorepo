@@ -37,10 +37,20 @@ const registryFetch = async <T>(
   }
 
   if (!response.ok) {
-    const message =
-      response.status === 404
-        ? "Requested resource was not found."
-        : `Request failed (HTTP ${response.status}).`;
+    let message: string;
+    try {
+      const errBody = (await response.json()) as { message?: string };
+      message =
+        errBody.message ??
+        (response.status === 404
+          ? "Requested resource was not found."
+          : `Request failed (HTTP ${response.status}).`);
+    } catch {
+      message =
+        response.status === 404
+          ? "Requested resource was not found."
+          : `Request failed (HTTP ${response.status}).`;
+    }
     throw new FormFetchError(message, response.status);
   }
 
@@ -81,6 +91,17 @@ export function buildValidatePayload(
   return { recipe };
 }
 
+/**
+ * Build the POST body for the `POST /registry/recipes/submit` endpoint.
+ */
+export function buildSubmitPayload(
+  recipe: ServiceContractRecipe,
+  formId: string,
+  version: string,
+): Record<string, unknown> {
+  return { recipe, formId, version };
+}
+
 // ---------------------------------------------------------------------------
 // Public API functions
 // ---------------------------------------------------------------------------
@@ -114,4 +135,18 @@ export const previewRecipeApi = (
   registryFetch<ServiceContract>("/registry/recipes/preview", {
     method: "POST",
     body: JSON.stringify(buildPreviewPayload(recipe)),
+  });
+
+/**
+ * Submit a validated recipe to the registry, creating a persisted form definition.
+ * `POST /registry/recipes/submit`
+ */
+export const submitRecipeApi = (
+  recipe: ServiceContractRecipe,
+  formId: string,
+  version: string,
+): Promise<Record<string, unknown>> =>
+  registryFetch<Record<string, unknown>>("/registry/recipes/submit", {
+    method: "POST",
+    body: JSON.stringify(buildSubmitPayload(recipe, formId, version)),
   });

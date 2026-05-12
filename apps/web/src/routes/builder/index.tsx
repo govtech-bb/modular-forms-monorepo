@@ -10,6 +10,7 @@ import {
   fetchCatalog,
   validateRecipeApi,
   previewRecipeApi,
+  submitRecipeApi,
 } from "../../lib/api/registry";
 import { recipeDraftReducer, emptyDraft } from "./-recipe-reducer";
 import { BuilderToolbar } from "./-toolbar";
@@ -17,13 +18,14 @@ import { StepList } from "./-step-list";
 import { StepEditor } from "./-step-editor";
 import { ValidationPanel } from "./-validation-panel";
 import { PreviewModal } from "./-preview-modal";
+import { SubmitModal } from "./-submit-modal";
 import css from "../../styles/builder.module.css";
 
 // ---------------------------------------------------------------------------
 // Route definition
 // ---------------------------------------------------------------------------
 
-interface BuilderLoaderData {
+export interface BuilderLoaderData {
   catalog: RegistryCatalog;
 }
 
@@ -59,8 +61,14 @@ function BuilderPage() {
   const [validateResult, setValidateResult] =
     React.useState<RecipeValidateResponse | null>(null);
   const [lastSaveStatus, setLastSaveStatus] = React.useState<
-    "idle" | "success" | "error"
+    "idle" | "success" | "error" | "submitted"
   >("idle");
+
+  // Submit state
+  const [isSubmitOpen, setIsSubmitOpen] = React.useState(false);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [submitError, setSubmitError] = React.useState<string | null>(null);
+  const [submitSuccess, setSubmitSuccess] = React.useState(false);
 
   // ---------------------------------------------------------------------------
   // Derived state
@@ -68,6 +76,8 @@ function BuilderPage() {
 
   const selectedStep =
     draft.steps.find((s) => s.stepId === selectedStepId) ?? null;
+
+  const canSubmit = validateResult?.valid === true;
 
   // ---------------------------------------------------------------------------
   // Handlers
@@ -136,6 +146,35 @@ function BuilderPage() {
     setLastSaveStatus("idle");
   };
 
+  const handleOpenSubmit = () => {
+    setSubmitError(null);
+    setSubmitSuccess(false);
+    setIsSubmitOpen(true);
+  };
+
+  const handleCloseSubmit = () => {
+    setIsSubmitOpen(false);
+  };
+
+  const handleSubmit = async (version: string) => {
+    setIsSubmitting(true);
+    setSubmitError(null);
+    setSubmitSuccess(false);
+    try {
+      const recipe = serializeRecipeDraft(draft);
+      await submitRecipeApi(recipe, draft.formId, version);
+      setSubmitSuccess(true);
+      setValidateResult(null);
+      setLastSaveStatus("submitted");
+    } catch (err) {
+      setSubmitError(
+        err instanceof Error ? err.message : "An unknown error occurred.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   // ---------------------------------------------------------------------------
   // Render
   // ---------------------------------------------------------------------------
@@ -147,8 +186,11 @@ function BuilderPage() {
         dispatch={dispatch}
         onPreview={() => void handlePreview()}
         onValidate={() => void handleValidate()}
+        onSubmit={handleOpenSubmit}
         isPreviewing={isPreviewing}
         isValidating={isValidating}
+        isSubmitting={isSubmitting}
+        canSubmit={canSubmit}
         lastSaveStatus={lastSaveStatus}
       />
 
@@ -197,6 +239,18 @@ function BuilderPage() {
           error={previewError}
           isLoading={isPreviewing}
           onClose={handleClosePreview}
+        />
+      )}
+
+      {/* Submit modal */}
+      {isSubmitOpen && (
+        <SubmitModal
+          formId={draft.formId}
+          isSubmitting={isSubmitting}
+          error={submitError}
+          success={submitSuccess}
+          onConfirm={(version) => void handleSubmit(version)}
+          onClose={handleCloseSubmit}
         />
       )}
     </div>

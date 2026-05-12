@@ -7,9 +7,12 @@ interface ToolbarProps {
   dispatch: React.Dispatch<RecipeDraftAction>;
   onPreview: () => void;
   onValidate: () => void;
+  onSubmit: () => void;
   isPreviewing: boolean;
   isValidating: boolean;
-  lastSaveStatus: "idle" | "success" | "error";
+  isSubmitting: boolean;
+  canSubmit: boolean;
+  lastSaveStatus: "idle" | "success" | "error" | "submitted";
 }
 
 export function BuilderToolbar({
@@ -17,8 +20,11 @@ export function BuilderToolbar({
   dispatch,
   onPreview,
   onValidate,
+  onSubmit,
   isPreviewing,
   isValidating,
+  isSubmitting,
+  canSubmit,
   lastSaveStatus,
 }: ToolbarProps) {
   return (
@@ -67,12 +73,16 @@ export function BuilderToolbar({
         <span className={css.statusBar} aria-live="polite">
           <span
             className={`${css.statusDot} ${
-              lastSaveStatus === "success"
+              lastSaveStatus === "success" || lastSaveStatus === "submitted"
                 ? css.statusDotSuccess
                 : css.statusDotError
             }`}
           />
-          {lastSaveStatus === "success" ? "Validated" : "Validation failed"}
+          {lastSaveStatus === "success"
+            ? "Validated"
+            : lastSaveStatus === "submitted"
+              ? "Submitted"
+              : "Validation failed"}
         </span>
       )}
 
@@ -89,12 +99,27 @@ export function BuilderToolbar({
 
         <button
           type="button"
-          className={`${css.btn} ${css.btnPrimary}`}
+          className={`${css.btn} ${css.btnSecondary}`}
           onClick={onPreview}
           disabled={isPreviewing}
           aria-busy={isPreviewing}
         >
           {isPreviewing ? "Loading..." : "Preview"}
+        </button>
+
+        <button
+          type="button"
+          className={`${css.btn} ${css.btnPrimary}`}
+          onClick={onSubmit}
+          disabled={!canSubmit || isSubmitting}
+          aria-busy={isSubmitting}
+          title={
+            !canSubmit
+              ? "Validate the recipe first before submitting"
+              : undefined
+          }
+        >
+          {isSubmitting ? "Submitting..." : "Submit"}
         </button>
       </div>
     </header>
