@@ -69,7 +69,7 @@ const registryFetch = async <T>(
 export function buildPreviewPayload(
   recipe: ServiceContractRecipe,
 ): Record<string, unknown> {
-  return { data: recipe };
+  return { recipe };
 }
 
 /**

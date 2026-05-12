@@ -127,7 +127,7 @@ export const BEHAVIOUR_TYPE_DESCRIPTORS: BehaviourTypeDescriptor[] = [
       {
         key: "fieldIds",
         label: "Field IDs",
-        inputType: "string",
+        inputType: "string[]",
         optional: false,
       },
     ],

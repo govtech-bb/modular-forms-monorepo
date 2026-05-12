@@ -22,6 +22,8 @@ import {
   VALIDATION_RULE_DESCRIPTORS,
   BEHAVIOUR_TYPE_DESCRIPTORS,
   EQUALITY_OPERATOR_OPTIONS,
+  isCustomRef,
+  parseRef,
 } from "@govtech-bb/form-builder";
 import {
   RegistryService,
@@ -158,6 +160,20 @@ export class RegistryBuilderService {
   }
 
   async getItem(ref: string): Promise<RegistryItem> {
+    if (isCustomRef(ref)) {
+      const parsed = parseRef(ref);
+      if (parsed.kind !== "custom") {
+        throw new NotFoundException(`Registry item '${ref}' not found`);
+      }
+      const entity = await this.customComponentRepo.findOne({
+        where: { namespace: parsed.namespace, type: parsed.type },
+      });
+      if (!entity) {
+        throw new NotFoundException(`Registry item '${ref}' not found`);
+      }
+      return mapCustomComponent(entity);
+    }
+
     const entry = await this.registryService.resolve(ref);
 
     if (!entry) {

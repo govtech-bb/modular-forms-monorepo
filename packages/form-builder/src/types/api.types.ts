@@ -15,7 +15,7 @@ export interface RegistryCatalogResponse {
 }
 
 /**
- * API response body for `GET /builder/registry/:ref`.
+ * API response body for `GET /registry/items/:ref`.
  * Wrapped in the standard `ApiResponse` envelope on the wire.
  */
 export interface RegistryItemResponse {

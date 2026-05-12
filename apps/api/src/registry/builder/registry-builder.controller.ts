@@ -11,6 +11,7 @@ import type {
   BlockRegistryItem,
   BuilderMetadata,
   RecipeValidateResponse,
+  RegistryItem,
 } from "@govtech-bb/form-builder";
 import type { ServiceContract } from "@govtech-bb/form-types";
 import {
@@ -20,6 +21,7 @@ import {
   GetBlocksDocs,
   GetBlockByIdDocs,
   GetBuilderMetadataDocs,
+  GetRegistryItemDocs,
   ValidateRecipeDocs,
   PreviewRecipeDocs,
 } from "./registry-builder.docs";
@@ -80,6 +82,15 @@ export class RegistryBuilderController {
     return AppApiResponse.success(data, {
       message: "Builder metadata retrieved",
     });
+  }
+
+  @Get("items/:ref")
+  @GetRegistryItemDocs()
+  async getRegistryItem(
+    @Param("ref") ref: string,
+  ): Promise<ApiResponseShape<RegistryItem>> {
+    const data = await this.registryBuilderService.getItem(ref);
+    return AppApiResponse.success(data, { message: "Registry item retrieved" });
   }
 
   @Post("recipes/validate")

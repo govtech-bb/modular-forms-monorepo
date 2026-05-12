@@ -3,12 +3,13 @@ import type {
   RegistryCatalog,
   PrimitiveRegistryItem,
   BlockRegistryItem,
+  CustomRegistryItem,
   RecipeFieldDraft,
 } from "@govtech-bb/form-builder";
 import { makeFieldId } from "./-recipe-reducer";
 import css from "../../styles/builder.module.css";
 
-type PaletteTab = "components" | "blocks";
+type PaletteTab = "components" | "blocks" | "custom";
 
 interface FieldPickerProps {
   catalog: RegistryCatalog;
@@ -35,6 +36,14 @@ export function FieldPicker({ catalog, onAddField }: FieldPickerProps) {
       b.blockId.toLowerCase().includes(query),
   );
 
+  const filteredCustom: CustomRegistryItem[] = catalog.custom.filter(
+    (c) =>
+      !query ||
+      c.label.toLowerCase().includes(query) ||
+      c.namespace.toLowerCase().includes(query) ||
+      c.type.toLowerCase().includes(query),
+  );
+
   const handleAddComponent = (item: PrimitiveRegistryItem) => {
     const field: RecipeFieldDraft = {
       _id: makeFieldId(),
@@ -50,6 +59,16 @@ export function FieldPicker({ catalog, onAddField }: FieldPickerProps) {
       _id: makeFieldId(),
       ref: item.ref,
       kind: "block",
+      overrides: {},
+    };
+    onAddField(field);
+  };
+
+  const handleAddCustom = (item: CustomRegistryItem) => {
+    const field: RecipeFieldDraft = {
+      _id: makeFieldId(),
+      ref: item.ref,
+      kind: "component",
       overrides: {},
     };
     onAddField(field);
@@ -89,6 +108,19 @@ export function FieldPicker({ catalog, onAddField }: FieldPickerProps) {
         >
           Blocks ({filteredBlocks.length})
         </button>
+        {catalog.custom.length > 0 && (
+          <button
+            role="tab"
+            type="button"
+            aria-selected={tab === "custom"}
+            className={`${css.paletteTab} ${
+              tab === "custom" ? css.paletteTabActive : ""
+            }`}
+            onClick={() => setTab("custom")}
+          >
+            Custom ({filteredCustom.length})
+          </button>
+        )}
       </div>
 
       <div className={css.paletteList} role="list">
@@ -129,6 +161,29 @@ export function FieldPicker({ catalog, onAddField }: FieldPickerProps) {
                 <span className={css.paletteItemLabel}>{item.label}</span>
                 <span className={css.paletteItemMeta}>
                   block &middot; {item.blockId} &middot; v{item.version}
+                </span>
+              </button>
+            ))
+          ))}
+
+        {tab === "custom" &&
+          (filteredCustom.length === 0 ? (
+            <p className={css.paletteEmpty}>
+              No custom components match your search.
+            </p>
+          ) : (
+            filteredCustom.map((item) => (
+              <button
+                key={item.ref}
+                type="button"
+                role="listitem"
+                className={css.paletteItem}
+                onClick={() => handleAddCustom(item)}
+                title={`Add ${item.label}`}
+              >
+                <span className={css.paletteItemLabel}>{item.label}</span>
+                <span className={css.paletteItemMeta}>
+                  {item.namespace} &middot; {item.type}
                 </span>
               </button>
             ))

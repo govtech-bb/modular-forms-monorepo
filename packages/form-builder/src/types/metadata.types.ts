@@ -53,6 +53,7 @@ export interface ValidationRuleDescriptor {
 /** The input control type for a behaviour configuration parameter. */
 export type BehaviourParamInputType =
   | "string"
+  | "string[]"
   | "number"
   | "fieldRef"
   | "stepRef"

@@ -143,6 +143,23 @@ export function ValidateRecipeDocs() {
   );
 }
 
+export function GetRegistryItemDocs() {
+  return applyDecorators(
+    ApiOperation({
+      summary: "Get a single registry item by ref",
+      description:
+        "Returns the enriched descriptor for any registry ref — primitive, block, or custom component.",
+    }),
+    ApiParam({
+      name: "ref",
+      description: "Full registry ref, URL-encoded",
+      example: "components/first-name",
+    }),
+    ApiResponse({ status: 200, description: "Registry item retrieved" }),
+    ApiNotFoundResponse({ description: "Registry item not found" }),
+  );
+}
+
 export function PreviewRecipeDocs() {
   return applyDecorators(
     ApiOperation({
