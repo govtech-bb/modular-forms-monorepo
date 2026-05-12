@@ -15,6 +15,9 @@
       "path": "../../packages/form-types"
     },
     {
+      "path": "../../packages/form-builder"
+    },
+    {
       "path": "../../packages/form-validation"
     },
     {

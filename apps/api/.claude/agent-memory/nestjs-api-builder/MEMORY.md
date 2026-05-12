@@ -1,0 +1,1 @@
+- [Registry Builder API (done)](project_registry-builder-done.md) — RegistryBuilderController+Service wired into RegistryModule directly; form-builder tsconfig ref added
