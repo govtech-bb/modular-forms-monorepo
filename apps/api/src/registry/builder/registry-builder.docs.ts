@@ -1,6 +1,7 @@
 import { applyDecorators } from "@nestjs/common";
 import {
   ApiBody,
+  ApiConflictResponse,
   ApiNotFoundResponse,
   ApiOperation,
   ApiParam,
@@ -157,6 +158,73 @@ export function GetRegistryItemDocs() {
     }),
     ApiResponse({ status: 200, description: "Registry item retrieved" }),
     ApiNotFoundResponse({ description: "Registry item not found" }),
+  );
+}
+
+export function SubmitRecipeDocs() {
+  return applyDecorators(
+    ApiOperation({
+      summary: "Submit a recipe and persist it as a form definition",
+      description:
+        "Validates the recipe with Zod, checks for a duplicate formId+version pair, " +
+        "then persists a new FormDefinitionEntity with publishedAt = null.",
+    }),
+    ApiBody({
+      schema: {
+        type: "object",
+        required: ["recipe", "formId", "version"],
+        properties: {
+          recipe: {
+            type: "object",
+            description: "ServiceContractRecipe to validate and store",
+          },
+          formId: {
+            type: "string",
+            maxLength: 100,
+            description: "Unique identifier for the form",
+            example: "birth-registration",
+          },
+          version: {
+            type: "string",
+            maxLength: 20,
+            description: "Semantic version string",
+            example: "1.0.0",
+          },
+        },
+      },
+    }),
+    ApiResponse({
+      status: 201,
+      description: "Recipe persisted as a new form definition",
+      schema: {
+        properties: {
+          status: { type: "string", enum: ["success"] },
+          message: { type: "string", example: "Recipe submitted successfully" },
+          statusCode: { type: "number", example: 201 },
+          data: {
+            type: "object",
+            description: "Saved FormDefinitionEntity",
+            properties: {
+              id: { type: "string", format: "uuid" },
+              formId: { type: "string" },
+              version: { type: "string" },
+              schema: { type: "object" },
+              publishedAt: { type: "string", nullable: true },
+              createdAt: { type: "string", format: "date-time" },
+              updatedAt: { type: "string", format: "date-time" },
+            },
+          },
+        },
+      },
+    }),
+    ApiResponse({
+      status: 400,
+      description: "Recipe failed Zod validation",
+    }),
+    ApiConflictResponse({
+      description:
+        "A form definition with the same formId and version already exists",
+    }),
   );
 }
 

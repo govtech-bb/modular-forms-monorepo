@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   Logger,
   NotFoundException,
@@ -32,6 +33,9 @@ import {
 import { BUILTIN_REGISTRY, RegistryEntry } from "../builtins";
 import { CustomComponent } from "../entities/custom-component.entity";
 import { PreviewRecipeDto } from "./dto/preview-recipe.dto";
+import { SubmitRecipeDto } from "./dto/submit-recipe.dto";
+import { FormDefinitionEntity } from "../../database/entities/form-definition.entity";
+import { FormDefinitionRepository } from "../../forms/form-definitions/form-definition.repository";
 
 const OPTIONS_HTML_TYPES = new Set(["checkbox", "radio", "select"]);
 
@@ -93,6 +97,7 @@ export class RegistryBuilderService {
     private readonly registryService: RegistryService,
     @InjectRepository(CustomComponent)
     private readonly customComponentRepo: Repository<CustomComponent>,
+    private readonly formDefinitionRepository: FormDefinitionRepository,
   ) {}
 
   async getCatalog(): Promise<RegistryCatalog> {
@@ -203,6 +208,42 @@ export class RegistryBuilderService {
     }
 
     return { valid: false, issues: result.issues };
+  }
+
+  async submitRecipe(body: SubmitRecipeDto): Promise<FormDefinitionEntity> {
+    const result = validateFormContract(body.recipe);
+
+    if (!result.ok) {
+      throw new BadRequestException({
+        message: "Recipe validation failed",
+        issues: result.issues,
+      });
+    }
+
+    const existing = await this.formDefinitionRepository.findOne({
+      where: { formId: body.formId, version: body.version },
+    });
+
+    if (existing) {
+      throw new ConflictException(
+        `A form definition with formId '${body.formId}' and version '${body.version}' already exists`,
+      );
+    }
+
+    const entity = this.formDefinitionRepository.create({
+      formId: body.formId,
+      version: body.version,
+      schema: body.recipe,
+      publishedAt: null,
+    });
+
+    const saved = await this.formDefinitionRepository.save(entity);
+
+    this.logger.log(
+      `Recipe submitted: formId=${body.formId} version=${body.version} id=${saved.id}`,
+    );
+
+    return saved;
   }
 
   async previewRecipe(body: PreviewRecipeDto): Promise<ServiceContract> {

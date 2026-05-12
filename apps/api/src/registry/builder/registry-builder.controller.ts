@@ -1,8 +1,9 @@
-import { Body, Controller, Get, Param, Post } from "@nestjs/common";
+import { Body, Controller, Get, HttpCode, Param, Post } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { RegistryBuilderService } from "./registry-builder.service";
 import { ValidateRecipeDto } from "./dto/validate-recipe.dto";
 import { PreviewRecipeDto } from "./dto/preview-recipe.dto";
+import { SubmitRecipeDto } from "./dto/submit-recipe.dto";
 import { ApiResponse as AppApiResponse } from "../../common/response";
 import type { ApiResponseShape } from "../../common/response";
 import type {
@@ -14,6 +15,7 @@ import type {
   RegistryItem,
 } from "@govtech-bb/form-builder";
 import type { ServiceContract } from "@govtech-bb/form-types";
+import type { FormDefinitionEntity } from "../../database/entities/form-definition.entity";
 import {
   GetCatalogDocs,
   GetPrimitivesDocs,
@@ -24,6 +26,7 @@ import {
   GetRegistryItemDocs,
   ValidateRecipeDocs,
   PreviewRecipeDocs,
+  SubmitRecipeDocs,
 } from "./registry-builder.docs";
 
 @ApiTags("Registry Builder")
@@ -91,6 +94,19 @@ export class RegistryBuilderController {
   ): Promise<ApiResponseShape<RegistryItem>> {
     const data = await this.registryBuilderService.getItem(ref);
     return AppApiResponse.success(data, { message: "Registry item retrieved" });
+  }
+
+  @Post("recipes/submit")
+  @HttpCode(201)
+  @SubmitRecipeDocs()
+  async submitRecipe(
+    @Body() body: SubmitRecipeDto,
+  ): Promise<ApiResponseShape<FormDefinitionEntity>> {
+    const data = await this.registryBuilderService.submitRecipe(body);
+    return AppApiResponse.success(data, {
+      message: "Recipe submitted successfully",
+      statusCode: 201,
+    });
   }
 
   @Post("recipes/validate")
