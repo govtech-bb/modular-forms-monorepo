@@ -21,6 +21,7 @@
     "resolveJsonModule": true,
     "paths": {
       "@govtech-bb/form-types": ["packages/form-types/src/index.ts"],
+      "@govtech-bb/form-builder": ["packages/form-builder/src/index.ts"],
       "@govtech-bb/form-conditions": ["packages/form-conditions/src/index.ts"],
       "@govtech-bb/form-validation": ["packages/form-validation/src/index.ts"],
       "@web/types": ["apps/web/src/types/index.ts"],
