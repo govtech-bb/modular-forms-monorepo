@@ -634,6 +634,123 @@
   background: var(--b-color-warning);
 }
 
+/* ---- Override badge + edit panel ---- */
+
+.overrideBadge {
+  display: inline-block;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.0625rem 0.375rem;
+  border-radius: 9999px;
+  background: var(--b-color-warning-bg);
+  color: #92400e;
+  border: 1px solid var(--b-color-warning-border);
+  vertical-align: middle;
+}
+
+.editorSubsection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.editorSubsectionHeading {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--b-color-text-muted);
+  margin: 0 0 0.25rem 0;
+  padding-bottom: 0.375rem;
+  border-bottom: 1px solid var(--b-color-border);
+}
+
+.editorSubsectionSubheading {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--b-color-text-muted);
+  margin-top: 0.5rem;
+}
+
+.editorSubsectionEmpty {
+  font-size: 0.8125rem;
+  color: var(--b-color-text-muted);
+  font-style: italic;
+}
+
+/* ---- Rule / behaviour rows ---- */
+
+.ruleRow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem 0.875rem;
+  border: 1px solid var(--b-color-border);
+  border-radius: var(--b-radius-sm);
+  background: var(--b-color-surface);
+}
+
+.ruleRowHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.ruleRowTitle {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--b-color-text);
+}
+
+.ruleRowType {
+  font-size: 0.6875rem;
+  font-family: monospace;
+  color: var(--b-color-text-muted);
+  margin-left: 0.5rem;
+  padding: 0.0625rem 0.375rem;
+  background: var(--b-color-surface-hover);
+  border-radius: var(--b-radius-sm);
+}
+
+.ruleRowDescription {
+  font-size: 0.75rem;
+  color: var(--b-color-text-muted);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.ruleRowParams {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.addRuleRow {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+.addRuleRow > select.fieldInput {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ---- Options editor rows ---- */
+
+.optionRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 0.5rem;
+  align-items: center;
+}
+
 /* ---- Misc ---- */
 
 .noStepSelected {

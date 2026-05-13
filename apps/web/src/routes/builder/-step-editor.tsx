@@ -6,7 +6,15 @@ import type {
   RecipeFieldDraft,
   RegistryCatalog,
 } from "@govtech-bb/form-builder";
+import type { Behaviour } from "@govtech-bb/form-types";
 import { FieldPicker } from "./-field-picker";
+import { FieldEditPanel } from "./-field-edit-panel";
+import { BehavioursEditor } from "./-behaviours-editor";
+import {
+  countActiveOverrides,
+  getFieldRefs,
+  getStepRefs,
+} from "./-recipe-refs";
 import css from "../../styles/builder.module.css";
 
 // Kebab-case: starts with a lowercase letter, followed by lowercase letters,
@@ -36,11 +44,34 @@ export function StepEditor({
   const [localStepId, setLocalStepId] = React.useState(step.stepId);
   const [stepIdError, setStepIdError] = React.useState<string>("");
 
+  // Which field, if any, is currently being edited in the overrides panel.
+  const [editingFieldDraftId, setEditingFieldDraftId] = React.useState<
+    string | null
+  >(null);
+
   // Keep localStepId in sync when the selected step changes from the sidebar.
   React.useEffect(() => {
     setLocalStepId(step.stepId);
     setStepIdError("");
   }, [step.stepId]);
+
+  // Close any open edit panel when the selected step changes.
+  React.useEffect(() => {
+    setEditingFieldDraftId(null);
+  }, [step.stepId]);
+
+  // Ref tables for the validation / behaviour editors. Computed from the
+  // live draft + catalog so picker dropdowns always reflect current state.
+  const fieldRefs = React.useMemo(
+    () => getFieldRefs(draft, catalog),
+    [draft, catalog],
+  );
+  const stepRefs = React.useMemo(() => getStepRefs(draft), [draft]);
+
+  const editingField =
+    editingFieldDraftId !== null
+      ? (step.fields.find((f) => f._id === editingFieldDraftId) ?? null)
+      : null;
 
   const handleMetaChange = (
     patch: Partial<Pick<RecipeStepDraft, "title" | "description">>,
@@ -108,6 +139,14 @@ export function StepEditor({
     });
   };
 
+  const handleStepBehavioursChange = (next: Behaviour[]) => {
+    dispatch({
+      type: "SET_STEP_BEHAVIOURS",
+      stepId: step.stepId,
+      behaviours: next,
+    });
+  };
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
       {/* Step metadata */}
@@ -135,9 +174,7 @@ export function StepEditor({
                 onChange={(e) => handleStepIdChange(e.target.value)}
                 placeholder="step-id"
                 aria-describedby={
-                  stepIdError
-                    ? `step-id-error-${step.stepId}`
-                    : undefined
+                  stepIdError ? `step-id-error-${step.stepId}` : undefined
                 }
                 aria-invalid={stepIdError ? true : undefined}
               />
@@ -224,9 +261,11 @@ export function StepEditor({
               field={field}
               isFirst={idx === 0}
               isLast={idx === step.fields.length - 1}
+              overrideCount={countActiveOverrides(field)}
               onRemove={() => handleRemoveField(field._id)}
               onMoveUp={() => handleMoveFieldUp(field._id)}
               onMoveDown={() => handleMoveFieldDown(field._id)}
+              onEdit={() => setEditingFieldDraftId(field._id)}
             />
           ))}
 
@@ -255,6 +294,36 @@ export function StepEditor({
           </div>
         </div>
       </div>
+
+      {/* Step-scoped behaviours */}
+      <div className={css.editorCard}>
+        <div className={css.editorCardHeader}>
+          <span className={css.editorCardHeading}>
+            Step behaviours ({step.behaviours.length})
+          </span>
+        </div>
+        <div className={css.editorCardBody}>
+          <BehavioursEditor
+            scope="step"
+            value={step.behaviours}
+            onChange={handleStepBehavioursChange}
+            fieldRefs={fieldRefs}
+            stepRefs={stepRefs}
+          />
+        </div>
+      </div>
+
+      {/* Field-edit overrides panel */}
+      {editingField !== null && (
+        <FieldEditPanel
+          draft={draft}
+          catalog={catalog}
+          step={step}
+          field={editingField}
+          dispatch={dispatch}
+          onClose={() => setEditingFieldDraftId(null)}
+        />
+      )}
     </div>
   );
 }
@@ -267,18 +336,22 @@ interface FieldRowProps {
   field: RecipeFieldDraft;
   isFirst: boolean;
   isLast: boolean;
+  overrideCount: number;
   onRemove: () => void;
   onMoveUp: () => void;
   onMoveDown: () => void;
+  onEdit: () => void;
 }
 
 function FieldRow({
   field,
   isFirst,
   isLast,
+  overrideCount,
   onRemove,
   onMoveUp,
   onMoveDown,
+  onEdit,
 }: FieldRowProps) {
   return (
     <div className={css.fieldRow}>
@@ -306,7 +379,20 @@ function FieldRow({
       </div>
 
       <div className={css.fieldRowInfo}>
-        <span className={css.fieldRowLabel}>{field.ref.split("/").pop()}</span>
+        <span className={css.fieldRowLabel}>
+          {field.ref.split("/").pop()}
+          {overrideCount > 0 && (
+            <span
+              className={css.overrideBadge}
+              style={{ marginLeft: "0.5rem" }}
+              title={`${overrideCount} override${
+                overrideCount === 1 ? "" : "s"
+              } active`}
+            >
+              {overrideCount} override{overrideCount === 1 ? "" : "s"}
+            </span>
+          )}
+        </span>
         <span className={css.fieldRowRef}>{field.ref}</span>
       </div>
 
@@ -319,6 +405,16 @@ function FieldRow({
       >
         {field.kind}
       </span>
+
+      <button
+        type="button"
+        className={`${css.btn} ${css.btnSecondary} ${css.btnSm}`}
+        onClick={onEdit}
+        aria-label={`Edit field ${field.ref}`}
+        title="Edit field overrides"
+      >
+        Edit
+      </button>
 
       <button
         type="button"
