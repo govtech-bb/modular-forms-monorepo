@@ -9,6 +9,12 @@ import type {
 import { FieldPicker } from "./-field-picker";
 import css from "../../styles/builder.module.css";
 
+// Kebab-case: starts with a lowercase letter, followed by lowercase letters,
+// digits, or hyphen-separated groups of the same. No leading/trailing/consecutive hyphens.
+const STEP_ID_PATTERN = /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/;
+const STEP_ID_ERROR_MESSAGE =
+  "Use lowercase letters, digits, and hyphens only. Must start with a letter (e.g. my-step, step-1).";
+
 interface StepEditorProps {
   step: RecipeStepDraft;
   draft: RecipeDraft;
@@ -24,6 +30,18 @@ export function StepEditor({
   catalog,
   onStepIdChange,
 }: StepEditorProps) {
+  // Local state for the step ID input so we can show the typed value even when
+  // it is invalid and the dispatch has been gated (i.e. store still holds the
+  // last valid ID).
+  const [localStepId, setLocalStepId] = React.useState(step.stepId);
+  const [stepIdError, setStepIdError] = React.useState<string>("");
+
+  // Keep localStepId in sync when the selected step changes from the sidebar.
+  React.useEffect(() => {
+    setLocalStepId(step.stepId);
+    setStepIdError("");
+  }, [step.stepId]);
+
   const handleMetaChange = (
     patch: Partial<Pick<RecipeStepDraft, "title" | "description">>,
   ) => {
@@ -31,6 +49,18 @@ export function StepEditor({
   };
 
   const handleStepIdChange = (newStepId: string) => {
+    // Always reflect what the user typed in the controlled input.
+    setLocalStepId(newStepId);
+
+    if (!STEP_ID_PATTERN.test(newStepId)) {
+      // Invalid — show error and do NOT commit to the store.
+      setStepIdError(STEP_ID_ERROR_MESSAGE);
+      return;
+    }
+
+    // Valid — clear error and commit to the store.
+    setStepIdError("");
+
     // Changing a stepId requires updating the step in-place via LOAD_DRAFT
     // since UPDATE_STEP_META does not support stepId mutation.
     const updatedSteps = draft.steps.map((s) =>
@@ -101,10 +131,29 @@ export function StepEditor({
                 id={`step-id-${step.stepId}`}
                 className={css.fieldInput}
                 type="text"
-                value={step.stepId}
+                value={localStepId}
                 onChange={(e) => handleStepIdChange(e.target.value)}
                 placeholder="step-id"
+                aria-describedby={
+                  stepIdError
+                    ? `step-id-error-${step.stepId}`
+                    : undefined
+                }
+                aria-invalid={stepIdError ? true : undefined}
               />
+              {stepIdError && (
+                <span
+                  id={`step-id-error-${step.stepId}`}
+                  role="alert"
+                  style={{
+                    fontSize: "0.6875rem",
+                    color: "var(--b-color-danger)",
+                    lineHeight: 1.3,
+                  }}
+                >
+                  {stepIdError}
+                </span>
+              )}
             </div>
 
             <div

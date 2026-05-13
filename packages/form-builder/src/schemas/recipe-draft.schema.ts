@@ -29,8 +29,11 @@ export const recipeFieldDraftSchema = z.object({
  * Zod schema for a single step in a recipe draft.
  * Uses `fields` (UI name) rather than `elements` (API name).
  */
+const KEBAB_CASE_REGEX = /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/;
+const KEBAB_CASE_MESSAGE = 'Step ID must be in kebab-case (e.g. "my-step")';
+
 export const recipeStepDraftSchema = z.object({
-  stepId: z.string(),
+  stepId: z.string().regex(KEBAB_CASE_REGEX, KEBAB_CASE_MESSAGE),
   title: z.string(),
   description: z.string().optional(),
   fields: z.array(recipeFieldDraftSchema),

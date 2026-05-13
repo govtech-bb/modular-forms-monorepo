@@ -65,6 +65,7 @@ function BuilderPage() {
   >("idle");
 
   // Submit state
+  const [version, setVersion] = React.useState("1.0.0");
   const [isSubmitOpen, setIsSubmitOpen] = React.useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [submitError, setSubmitError] = React.useState<string | null>(null);
@@ -156,7 +157,7 @@ function BuilderPage() {
     setIsSubmitOpen(false);
   };
 
-  const handleSubmit = async (version: string) => {
+  const handleSubmit = async () => {
     setIsSubmitting(true);
     setSubmitError(null);
     setSubmitSuccess(false);
@@ -184,6 +185,8 @@ function BuilderPage() {
       <BuilderToolbar
         draft={draft}
         dispatch={dispatch}
+        version={version}
+        onVersionChange={setVersion}
         onPreview={() => void handlePreview()}
         onValidate={() => void handleValidate()}
         onSubmit={handleOpenSubmit}
@@ -246,10 +249,11 @@ function BuilderPage() {
       {isSubmitOpen && (
         <SubmitModal
           formId={draft.formId}
+          version={version}
           isSubmitting={isSubmitting}
           error={submitError}
           success={submitSuccess}
-          onConfirm={(version) => void handleSubmit(version)}
+          onConfirm={() => void handleSubmit()}
           onClose={handleCloseSubmit}
         />
       )}

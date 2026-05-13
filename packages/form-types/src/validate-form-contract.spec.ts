@@ -12,6 +12,13 @@ const validRecipe = {
   ],
 };
 
+/** Minimal recipe step using a component ref — satisfies recipeFormStepSchema. */
+const validStep = {
+  stepId: "personal-info",
+  title: "Personal Information",
+  elements: [{ ref: "components/text-input" }],
+};
+
 describe("validateFormContract", () => {
   it("accepts a well-formed recipe", () => {
     const result = validateFormContract(validRecipe);
@@ -80,5 +87,35 @@ describe("validateFormContract", () => {
     };
     const result = validateFormContract(withRule);
     expect(result.ok).toBe(true);
+  });
+
+  describe("stepId kebab-case enforcement", () => {
+    it("accepts a recipe whose step ID is valid kebab-case", () => {
+      const recipe = {
+        ...validRecipe,
+        steps: [validStep],
+      };
+      const result = validateFormContract(recipe);
+      expect(result.ok).toBe(true);
+    });
+
+    it.each([
+      ["PascalCase", "MyStep"],
+      ["snake_case", "my_step"],
+      ["space-separated", "my step"],
+      ["leading hyphen", "-step"],
+      ["trailing hyphen", "step-"],
+      ["all uppercase", "STEP"],
+    ])("rejects a step ID that is %s (%s)", (_label, badId) => {
+      const recipe = {
+        ...validRecipe,
+        steps: [{ ...validStep, stepId: badId }],
+      };
+      const result = validateFormContract(recipe);
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.issues.some((i) => i.path.includes("stepId"))).toBe(true);
+      }
+    });
   });
 });

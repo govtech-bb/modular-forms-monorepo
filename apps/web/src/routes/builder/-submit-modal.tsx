@@ -3,23 +3,23 @@ import css from "../../styles/builder.module.css";
 
 interface SubmitModalProps {
   formId: string;
+  version: string;
   isSubmitting: boolean;
   error: string | null;
   success: boolean;
-  onConfirm: (version: string) => void;
+  onConfirm: () => void;
   onClose: () => void;
 }
 
 export function SubmitModal({
   formId,
+  version,
   isSubmitting,
   error,
   success,
   onConfirm,
   onClose,
 }: SubmitModalProps) {
-  const [version, setVersion] = React.useState("1.0.0");
-
   React.useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === "Escape" && !isSubmitting) onClose();
@@ -42,7 +42,7 @@ export function SubmitModal({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!isSubmitting && !success) {
-      onConfirm(version);
+      onConfirm();
     }
   };
 
@@ -130,12 +130,12 @@ export function SubmitModal({
                   className={css.fieldInput}
                   type="text"
                   value={version}
-                  onChange={(e) => setVersion(e.target.value)}
-                  maxLength={20}
-                  placeholder="e.g. 1.0.0"
-                  required
-                  disabled={isSubmitting}
-                  aria-describedby={error ? "submit-error" : undefined}
+                  readOnly
+                  aria-readonly="true"
+                  style={{
+                    background: "var(--b-color-surface-hover)",
+                    color: "var(--b-color-text-muted)",
+                  }}
                 />
               </div>
 
@@ -174,7 +174,7 @@ export function SubmitModal({
                 <button
                   type="submit"
                   className={`${css.btn} ${css.btnPrimary}`}
-                  disabled={isSubmitting || !version.trim()}
+                  disabled={isSubmitting}
                   aria-busy={isSubmitting}
                 >
                   {isSubmitting ? "Submitting..." : "Submit"}

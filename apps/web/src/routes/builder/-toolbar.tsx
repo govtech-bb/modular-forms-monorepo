@@ -16,6 +16,8 @@ function validateFormId(value: string): string {
 interface ToolbarProps {
   draft: RecipeDraft;
   dispatch: React.Dispatch<RecipeDraftAction>;
+  version: string;
+  onVersionChange: (version: string) => void;
   onPreview: () => void;
   onValidate: () => void;
   onSubmit: () => void;
@@ -29,6 +31,8 @@ interface ToolbarProps {
 export function BuilderToolbar({
   draft,
   dispatch,
+  version,
+  onVersionChange,
   onPreview,
   onValidate,
   onSubmit,
@@ -59,7 +63,12 @@ export function BuilderToolbar({
           placeholder="form-id"
           value={draft.formId}
           onChange={(e) => {
-            const value = e.target.value;
+            const raw = e.target.value;
+            const value = raw
+              .toLowerCase()
+              .replace(/[\s_]+/g, "-")
+              .replace(/[^a-z0-9-]/g, "")
+              .replace(/-{2,}/g, "-");
             setFormIdError(validateFormId(value));
             dispatch({
               type: "LOAD_DRAFT",
@@ -104,6 +113,20 @@ export function BuilderToolbar({
           });
         }}
         aria-label="Form title"
+      />
+
+      <label htmlFor="builder-version" className="sr-only">
+        Version
+      </label>
+      <input
+        id="builder-version"
+        className={`${css.toolbarInput} ${css.toolbarInputNarrow}`}
+        type="text"
+        placeholder="e.g. 1.0.0"
+        value={version}
+        onChange={(e) => onVersionChange(e.target.value)}
+        aria-label="Version"
+        maxLength={20}
       />
 
       {lastSaveStatus !== "idle" && (
