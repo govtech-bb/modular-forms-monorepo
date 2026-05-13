@@ -172,23 +172,12 @@ export function SubmitRecipeDocs() {
     ApiBody({
       schema: {
         type: "object",
-        required: ["recipe", "formId", "version"],
+        required: ["recipe"],
         properties: {
           recipe: {
             type: "object",
-            description: "ServiceContractRecipe to validate and store",
-          },
-          formId: {
-            type: "string",
-            maxLength: 100,
-            description: "Unique identifier for the form",
-            example: "birth-registration",
-          },
-          version: {
-            type: "string",
-            maxLength: 20,
-            description: "Semantic version string",
-            example: "1.0.0",
+            description:
+              "ServiceContractRecipe to validate and store. formId and version are read from the recipe itself.",
           },
         },
       },

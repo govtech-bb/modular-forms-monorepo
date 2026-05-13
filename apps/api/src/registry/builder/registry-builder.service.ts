@@ -220,19 +220,21 @@ export class RegistryBuilderService {
       });
     }
 
+    const { formId, version } = result.data;
+
     const existing = await this.formDefinitionRepository.findOne({
-      where: { formId: body.formId, version: body.version },
+      where: { formId, version },
     });
 
     if (existing) {
       throw new ConflictException(
-        `A form definition with formId '${body.formId}' and version '${body.version}' already exists`,
+        `A form definition with formId '${formId}' and version '${version}' already exists`,
       );
     }
 
     const entity = this.formDefinitionRepository.create({
-      formId: body.formId,
-      version: body.version,
+      formId,
+      version,
       schema: body.recipe,
       publishedAt: null,
     });
@@ -240,7 +242,7 @@ export class RegistryBuilderService {
     const saved = await this.formDefinitionRepository.save(entity);
 
     this.logger.log(
-      `Recipe submitted: formId=${body.formId} version=${body.version} id=${saved.id}`,
+      `Recipe submitted: formId=${formId} version=${version} id=${saved.id}`,
     );
 
     return saved;
