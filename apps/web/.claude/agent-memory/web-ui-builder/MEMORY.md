@@ -1,3 +1,0 @@
-- [Routing conventions](routing-conventions.md) — TanStack Router file-based routes; `-` prefix files are non-route; routeTree.gen.ts is auto-generated
-- [Registry Builder feature](registry-builder-feature.md) — Builder UI at /builder/ with catalog API, recipe reducer, preview/validate flow
-- [Form Builder package](form-builder-package.md) — @govtech-bb/form-builder types and serialization utilities used in web app

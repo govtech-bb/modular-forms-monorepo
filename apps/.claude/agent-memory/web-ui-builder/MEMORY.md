@@ -1,1 +1,4 @@
 - [Registry Builder UI Task](project_registry-builder-ui.md) — implement /builder route with three-panel recipe builder; uses @govtech-bb/form-builder types; API layer + draft state + all components
+- [Routing conventions](routing-conventions.md) — TanStack Router file-based routes; `-` prefix files are non-route; routeTree.gen.ts is auto-generated
+- [Registry Builder feature](registry-builder-feature.md) — Builder UI at /builder/ with catalog API, recipe reducer, preview/validate flow
+- [Form Builder package](form-builder-package.md) — @govtech-bb/form-builder types and serialization utilities used in web app
