@@ -68,7 +68,8 @@ const makeFetch = async <T extends ApiResponse>(
 
     switch (response.status) {
       case 404:
-        message = errorMessage.not_found ?? "Requested item was not found";
+        message = errorMessage.not_found ?? "Requested item was not found.";
+        break;
       default:
         message = `Failed to load form (HTTP ${response.status}).`;
     }
