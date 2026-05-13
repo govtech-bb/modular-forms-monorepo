@@ -1,0 +1,1 @@
+- [Registry Builder API Task](project_registry-builder-api.md) — implement RegistryBuilderModule with 8 endpoints; uses @govtech-bb/form-builder types; read-only, no migrations

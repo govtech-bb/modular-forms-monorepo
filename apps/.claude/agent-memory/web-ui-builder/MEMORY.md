@@ -1,0 +1,1 @@
+- [Registry Builder UI Task](project_registry-builder-ui.md) — implement /builder route with three-panel recipe builder; uses @govtech-bb/form-builder types; API layer + draft state + all components
