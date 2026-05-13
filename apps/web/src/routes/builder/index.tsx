@@ -161,8 +161,8 @@ function BuilderPage() {
     setSubmitError(null);
     setSubmitSuccess(false);
     try {
-      const recipe = serializeRecipeDraft(draft);
-      await submitRecipeApi(recipe, draft.formId, version);
+      const recipe = serializeRecipeDraft(draft, { version });
+      await submitRecipeApi(recipe);
       setSubmitSuccess(true);
       setValidateResult(null);
       setLastSaveStatus("submitted");

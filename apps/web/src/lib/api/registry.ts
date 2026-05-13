@@ -96,10 +96,8 @@ export function buildValidatePayload(
  */
 export function buildSubmitPayload(
   recipe: ServiceContractRecipe,
-  formId: string,
-  version: string,
 ): Record<string, unknown> {
-  return { recipe, formId, version };
+  return { recipe };
 }
 
 // ---------------------------------------------------------------------------
@@ -143,10 +141,8 @@ export const previewRecipeApi = (
  */
 export const submitRecipeApi = (
   recipe: ServiceContractRecipe,
-  formId: string,
-  version: string,
 ): Promise<Record<string, unknown>> =>
   registryFetch<Record<string, unknown>>("/registry/recipes/submit", {
     method: "POST",
-    body: JSON.stringify(buildSubmitPayload(recipe, formId, version)),
+    body: JSON.stringify(buildSubmitPayload(recipe)),
   });
