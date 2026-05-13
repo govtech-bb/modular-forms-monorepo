@@ -19,14 +19,29 @@ export const serviceContractSchema = z.object({
 });
 export type ServiceContract = z.infer<typeof serviceContractSchema>;
 
-export const serviceContractRecipeSchema = z.object({
-  formId: z.string(),
-  title: z.string(),
-  description: z.string().optional(),
-  steps: z.array(recipeFormStepSchema),
-  processors: z.array(processorSchema).optional(),
-  createdAt: dateTimeFormatSchema,
-  updatedAt: dateTimeFormatSchema,
-  version: z.string(),
-});
+const REQUIRED_STEP_IDS = ["declaration", "submission-confirmation"] as const;
+
+export const serviceContractRecipeSchema = z
+  .object({
+    formId: z.string(),
+    title: z.string(),
+    description: z.string().optional(),
+    steps: z.array(recipeFormStepSchema),
+    processors: z.array(processorSchema).optional(),
+    createdAt: dateTimeFormatSchema,
+    updatedAt: dateTimeFormatSchema,
+    version: z.string(),
+  })
+  .superRefine((recipe, ctx) => {
+    const ids = new Set(recipe.steps.map((s) => s.stepId));
+    for (const required of REQUIRED_STEP_IDS) {
+      if (!ids.has(required)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["steps"],
+          message: `Recipe must include a step with stepId "${required}"`,
+        });
+      }
+    }
+  });
 export type ServiceContractRecipe = z.infer<typeof serviceContractRecipeSchema>;
