@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import type { RecipeDraft, RecipeDraftAction } from "@govtech-bb/form-builder";
+import type { FormDefinitionSummary } from "@web/types";
+import { FormPicker } from "./-form-picker";
 import css from "../../styles/builder.module.css";
 
 const FORM_ID_PATTERN = /^[a-z0-9][a-z0-9-]*$/;
@@ -26,6 +28,11 @@ interface ToolbarProps {
   isSubmitting: boolean;
   canSubmit: boolean;
   lastSaveStatus: "idle" | "success" | "error" | "submitted";
+  forms: FormDefinitionSummary[];
+  onFormSelect: (formId: string) => void;
+  isPickerOpen: boolean;
+  onPickerOpen: () => void;
+  onPickerClose: () => void;
 }
 
 export function BuilderToolbar({
@@ -41,6 +48,11 @@ export function BuilderToolbar({
   isSubmitting,
   canSubmit,
   lastSaveStatus,
+  forms,
+  onFormSelect,
+  isPickerOpen,
+  onPickerOpen,
+  onPickerClose,
 }: ToolbarProps) {
   const [formIdError, setFormIdError] = useState<string>("");
 
@@ -150,6 +162,15 @@ export function BuilderToolbar({
         <button
           type="button"
           className={`${css.btn} ${css.btnSecondary}`}
+          onClick={onPickerOpen}
+          aria-haspopup="dialog"
+        >
+          Open existing form
+        </button>
+
+        <button
+          type="button"
+          className={`${css.btn} ${css.btnSecondary}`}
           onClick={onValidate}
           disabled={isValidating}
           aria-busy={isValidating}
@@ -182,6 +203,13 @@ export function BuilderToolbar({
           {isSubmitting ? "Submitting..." : "Submit"}
         </button>
       </div>
+
+      <FormPicker
+        forms={forms}
+        onSelect={onFormSelect}
+        onClose={onPickerClose}
+        isOpen={isPickerOpen}
+      />
     </header>
   );
 }

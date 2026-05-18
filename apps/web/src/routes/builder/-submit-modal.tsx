@@ -4,6 +4,7 @@ import css from "../../styles/builder.module.css";
 interface SubmitModalProps {
   formId: string;
   version: string;
+  isUpdate: boolean;
   isSubmitting: boolean;
   error: string | null;
   success: boolean;
@@ -14,6 +15,7 @@ interface SubmitModalProps {
 export function SubmitModal({
   formId,
   version,
+  isUpdate,
   isSubmitting,
   error,
   success,
@@ -51,12 +53,14 @@ export function SubmitModal({
       className={css.modalOverlay}
       role="dialog"
       aria-modal="true"
-      aria-label="Submit form recipe"
+      aria-label={isUpdate ? "Update form recipe" : "Submit form recipe"}
       onClick={handleOverlayClick}
     >
       <div className={css.modalBox} style={{ maxWidth: "480px" }}>
         <div className={css.modalHeader}>
-          <span className={css.modalTitle}>Submit Recipe</span>
+          <span className={css.modalTitle}>
+            {isUpdate ? "Save Changes" : "Submit Recipe"}
+          </span>
           <button
             type="button"
             className={`${css.btn} ${css.btnSecondary} ${css.btnSm}`}
@@ -80,7 +84,9 @@ export function SubmitModal({
               }}
             >
               <p style={{ fontWeight: 700, marginBottom: "0.5rem" }}>
-                Recipe submitted successfully.
+                {isUpdate
+                  ? "Changes saved successfully."
+                  : "Recipe submitted successfully."}
               </p>
               <p
                 style={{
@@ -90,8 +96,8 @@ export function SubmitModal({
               >
                 Form <code style={{ fontFamily: "monospace" }}>{formId}</code>{" "}
                 version{" "}
-                <code style={{ fontFamily: "monospace" }}>{version}</code> is
-                now registered.
+                <code style={{ fontFamily: "monospace" }}>{version}</code>{" "}
+                {isUpdate ? "has been updated." : "is now registered."}
               </p>
             </div>
           ) : (
@@ -177,7 +183,13 @@ export function SubmitModal({
                   disabled={isSubmitting}
                   aria-busy={isSubmitting}
                 >
-                  {isSubmitting ? "Submitting..." : "Submit"}
+                  {isSubmitting
+                    ? isUpdate
+                      ? "Updating..."
+                      : "Submitting..."
+                    : isUpdate
+                      ? "Update form"
+                      : "Submit"}
                 </button>
               </div>
             </form>

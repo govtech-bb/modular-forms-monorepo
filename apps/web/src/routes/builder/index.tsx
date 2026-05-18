@@ -4,14 +4,21 @@ import type {
   RegistryCatalog,
   RecipeValidateResponse,
 } from "@govtech-bb/form-builder";
-import { serializeRecipeDraft } from "@govtech-bb/form-builder";
+import {
+  serializeRecipeDraft,
+  deserializeRecipe,
+} from "@govtech-bb/form-builder";
 import type { ServiceContract } from "@govtech-bb/form-types";
 import {
   fetchCatalog,
+  fetchRecipeApi,
   validateRecipeApi,
   previewRecipeApi,
   submitRecipeApi,
+  updateRecipeApi,
 } from "../../lib/api/registry";
+import { FormFetchError, fetchFormDefinitions } from "../../lib/api/forms";
+import type { FormDefinitionSummary } from "@web/types";
 import { recipeDraftReducer, emptyDraft } from "./-recipe-reducer";
 import { BuilderToolbar } from "./-toolbar";
 import { StepList } from "./-step-list";
@@ -27,13 +34,17 @@ import css from "../../styles/builder.module.css";
 
 export interface BuilderLoaderData {
   catalog: RegistryCatalog;
+  forms: FormDefinitionSummary[];
 }
 
 export const Route = createFileRoute("/builder/")({
   component: BuilderPage,
   loader: async (): Promise<BuilderLoaderData> => {
-    const catalog = await fetchCatalog();
-    return { catalog };
+    const [catalog, forms] = await Promise.all([
+      fetchCatalog(),
+      fetchFormDefinitions(),
+    ]);
+    return { catalog, forms };
   },
   errorComponent: BuilderError,
 });
@@ -43,7 +54,7 @@ export const Route = createFileRoute("/builder/")({
 // ---------------------------------------------------------------------------
 
 function BuilderPage() {
-  const { catalog } = Route.useLoaderData();
+  const { catalog, forms } = Route.useLoaderData();
 
   const [draft, dispatch] = React.useReducer(recipeDraftReducer, emptyDraft());
 
@@ -70,6 +81,19 @@ function BuilderPage() {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [submitError, setSubmitError] = React.useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = React.useState(false);
+
+  // Form picker state
+  const [isPickerOpen, setIsPickerOpen] = React.useState(false);
+
+  // Loaded-form identity (null = new form, string = editing existing).
+  const [loadedFromId, setLoadedFromId] = React.useState<string | null>(null);
+  // loadedVersion is retained for future use (e.g. conflict detection).
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [loadedVersion, setLoadedVersion] = React.useState<string | null>(null);
+
+  // Form load async state
+  const [isLoadingForm, setIsLoadingForm] = React.useState(false);
+  const [loadError, setLoadError] = React.useState<string | null>(null);
 
   // ---------------------------------------------------------------------------
   // Derived state
@@ -157,20 +181,83 @@ function BuilderPage() {
     setIsSubmitOpen(false);
   };
 
+  /**
+   * Called when the user selects a form in the picker.
+   * Fetches the recipe from the API, deserializes it, and loads it into the
+   * reducer. The picker is already closed by FormPicker before this fires.
+   */
+  const handleFormSelect = async (formId: string) => {
+    // Guard: confirm before discarding an in-progress draft
+    if (
+      (draft.steps.length > 0 || draft.formId !== "") &&
+      !window.confirm(
+        "Opening a new form will discard your current draft. Continue?",
+      )
+    ) {
+      return;
+    }
+
+    setIsLoadingForm(true);
+    setLoadError(null);
+    // Ensure the picker is closed (FormPicker already does this, but be safe)
+    setIsPickerOpen(false);
+
+    try {
+      const recipe = await fetchRecipeApi(formId);
+      const recipeDraft = deserializeRecipe(recipe);
+
+      dispatch({ type: "LOAD_DRAFT", draft: recipeDraft });
+
+      // Reset transient UI state
+      setSelectedStepId("");
+      setValidateResult(null);
+      setLastSaveStatus("idle");
+      setSubmitError(null);
+      setSubmitSuccess(false);
+
+      // Pre-populate the version input from the loaded recipe
+      setVersion(recipe.version);
+
+      // Record the loaded form's identity for W4 (update vs submit)
+      setLoadedFromId(formId);
+      setLoadedVersion(recipe.version);
+    } catch (err) {
+      setLoadError(
+        err instanceof Error
+          ? err.message
+          : "Failed to load the selected form. Please try again.",
+      );
+    } finally {
+      setIsLoadingForm(false);
+    }
+  };
+
   const handleSubmit = async () => {
     setIsSubmitting(true);
     setSubmitError(null);
     setSubmitSuccess(false);
     try {
       const recipe = serializeRecipeDraft(draft, { version });
-      await submitRecipeApi(recipe);
+
+      if (loadedFromId !== null && loadedFromId === draft.formId) {
+        // UPDATE path — overwrite the existing form definition
+        await updateRecipeApi(loadedFromId, recipe);
+      } else {
+        // CREATE path — existing behaviour, unchanged
+        await submitRecipeApi(recipe);
+      }
+
       setSubmitSuccess(true);
       setValidateResult(null);
       setLastSaveStatus("submitted");
     } catch (err) {
-      setSubmitError(
-        err instanceof Error ? err.message : "An unknown error occurred.",
-      );
+      if (err instanceof FormFetchError && err.status === 409) {
+        setSubmitError("This form has been published and cannot be edited.");
+      } else {
+        setSubmitError(
+          err instanceof Error ? err.message : "An unknown error occurred.",
+        );
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -195,6 +282,11 @@ function BuilderPage() {
         isSubmitting={isSubmitting}
         canSubmit={canSubmit}
         lastSaveStatus={lastSaveStatus}
+        forms={forms}
+        onFormSelect={(formId) => void handleFormSelect(formId)}
+        isPickerOpen={isPickerOpen}
+        onPickerOpen={() => setIsPickerOpen(true)}
+        onPickerClose={() => setIsPickerOpen(false)}
       />
 
       <div className={css.builderBody}>
@@ -208,6 +300,62 @@ function BuilderPage() {
 
         {/* Main editor area */}
         <main className={css.editorArea} aria-label="Form editor">
+          {/* Form load error banner */}
+          {loadError !== null && (
+            <div
+              role="alert"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: "0.75rem",
+                padding: "0.75rem 1rem",
+                background: "var(--b-color-danger-subtle, #fef2f2)",
+                borderLeft: "4px solid var(--b-color-danger, #dc2626)",
+                borderRadius: "0.375rem",
+                marginBottom: "1rem",
+                fontSize: "0.875rem",
+                color: "var(--b-color-danger, #dc2626)",
+              }}
+            >
+              <span>{loadError}</span>
+              <button
+                type="button"
+                onClick={() => setLoadError(null)}
+                aria-label="Dismiss error"
+                style={{
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  color: "inherit",
+                  fontSize: "1rem",
+                  lineHeight: 1,
+                  padding: "0.125rem",
+                }}
+              >
+                &times;
+              </button>
+            </div>
+          )}
+
+          {/* Loading indicator while fetching a form */}
+          {isLoadingForm && (
+            <div
+              aria-live="polite"
+              style={{
+                padding: "0.75rem 1rem",
+                background: "var(--b-color-info-subtle, #eff6ff)",
+                borderLeft: "4px solid var(--b-color-info, #3b82f6)",
+                borderRadius: "0.375rem",
+                marginBottom: "1rem",
+                fontSize: "0.875rem",
+                color: "var(--b-color-info, #1d4ed8)",
+              }}
+            >
+              Loading form...
+            </div>
+          )}
+
           {/* Validation results banner */}
           {validateResult !== null && (
             <ValidationPanel
@@ -250,6 +398,7 @@ function BuilderPage() {
         <SubmitModal
           formId={draft.formId}
           version={version}
+          isUpdate={loadedFromId !== null}
           isSubmitting={isSubmitting}
           error={submitError}
           success={submitSuccess}

@@ -146,3 +146,27 @@ export const submitRecipeApi = (
     method: "POST",
     body: JSON.stringify(buildSubmitPayload(recipe)),
   });
+
+/**
+ * Fetch the raw (un-hydrated) ServiceContractRecipe for an existing form.
+ * `GET /form-definitions/:formId/recipe`
+ */
+export const fetchRecipeApi = (
+  formId: string,
+): Promise<ServiceContractRecipe> =>
+  registryFetch<ServiceContractRecipe>(
+    `/form-definitions/${encodeURIComponent(formId)}/recipe`,
+  );
+
+/**
+ * Update (overwrite) the recipe for an existing form definition.
+ * `PUT /registry/recipes/:formId`
+ */
+export const updateRecipeApi = (
+  formId: string,
+  recipe: ServiceContractRecipe,
+): Promise<unknown> =>
+  registryFetch<unknown>(`/registry/recipes/${encodeURIComponent(formId)}`, {
+    method: "PUT",
+    body: JSON.stringify({ recipe }),
+  });
