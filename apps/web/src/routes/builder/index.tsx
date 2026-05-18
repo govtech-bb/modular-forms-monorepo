@@ -232,6 +232,28 @@ function BuilderPage() {
     }
   };
 
+  const handleNewForm = () => {
+    if (
+      (draft.steps.length > 0 || draft.formId !== "") &&
+      !window.confirm(
+        "Starting a new form will discard your current draft. Continue?",
+      )
+    ) {
+      return;
+    }
+
+    dispatch({ type: "RESET" });
+    setSelectedStepId("");
+    setLoadedFromId(null);
+    setLoadedVersion(null);
+    setVersion("");
+    setValidateResult(null);
+    setLastSaveStatus("idle");
+    setSubmitError(null);
+    setSubmitSuccess(false);
+    setLoadError(null);
+  };
+
   const handleSubmit = async () => {
     setIsSubmitting(true);
     setSubmitError(null);
@@ -285,6 +307,7 @@ function BuilderPage() {
         forms={forms}
         onFormSelect={(formId) => void handleFormSelect(formId)}
         isPickerOpen={isPickerOpen}
+        onNewForm={handleNewForm}
         onPickerOpen={() => setIsPickerOpen(true)}
         onPickerClose={() => setIsPickerOpen(false)}
       />

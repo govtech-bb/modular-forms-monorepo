@@ -31,6 +31,7 @@ interface ToolbarProps {
   forms: FormDefinitionSummary[];
   onFormSelect: (formId: string) => void;
   isPickerOpen: boolean;
+  onNewForm: () => void;
   onPickerOpen: () => void;
   onPickerClose: () => void;
 }
@@ -51,6 +52,7 @@ export function BuilderToolbar({
   forms,
   onFormSelect,
   isPickerOpen,
+  onNewForm,
   onPickerOpen,
   onPickerClose,
 }: ToolbarProps) {
@@ -159,6 +161,14 @@ export function BuilderToolbar({
       )}
 
       <div className={css.toolbarActions}>
+        <button
+          type="button"
+          className={`${css.btn} ${css.btnSecondary}`}
+          onClick={onNewForm}
+        >
+          New Form
+        </button>
+
         <button
           type="button"
           className={`${css.btn} ${css.btnSecondary}`}
