@@ -34,6 +34,7 @@ import { BUILTIN_REGISTRY, RegistryEntry } from "../builtins";
 import { CustomComponent } from "../entities/custom-component.entity";
 import { PreviewRecipeDto } from "./dto/preview-recipe.dto";
 import { SubmitRecipeDto } from "./dto/submit-recipe.dto";
+import { UpdateRecipeDto } from "./dto/update-recipe.dto";
 import { FormDefinitionEntity } from "../../database/entities/form-definition.entity";
 import { FormDefinitionRepository } from "../../forms/form-definitions/form-definition.repository";
 
@@ -243,6 +244,53 @@ export class RegistryBuilderService {
 
     this.logger.log(
       `Recipe submitted: formId=${formId} version=${version} id=${saved.id}`,
+    );
+
+    return saved;
+  }
+
+  async updateRecipe(
+    formId: string,
+    body: UpdateRecipeDto,
+  ): Promise<FormDefinitionEntity> {
+    const result = validateFormContract(body.recipe);
+
+    if (!result.ok) {
+      throw new BadRequestException({
+        message: "Recipe validation failed",
+        issues: result.issues,
+      });
+    }
+
+    if (formId !== result.data.formId) {
+      throw new BadRequestException(
+        "formId in URL does not match recipe formId",
+      );
+    }
+
+    const { version } = result.data;
+
+    const entity = await this.formDefinitionRepository.findOne({
+      where: { formId, version },
+    });
+
+    if (!entity) {
+      throw new NotFoundException(
+        `Form definition not found: formId=${formId}, version=${version}`,
+      );
+    }
+
+    if (entity.publishedAt !== null) {
+      throw new ConflictException(
+        `Form definition '${formId}' version '${version}' is published and cannot be modified`,
+      );
+    }
+
+    entity.schema = body.recipe;
+    const saved = await this.formDefinitionRepository.save(entity);
+
+    this.logger.log(
+      `Recipe updated: formId=${formId} version=${version} id=${saved.id}`,
     );
 
     return saved;

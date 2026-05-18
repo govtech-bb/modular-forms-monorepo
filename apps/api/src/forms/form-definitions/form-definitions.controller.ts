@@ -1,10 +1,16 @@
 import { Controller, Get, Param, Query } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { FormDefinitionsService } from "./form-definitions.service";
-import { GetFormDefinitionDocs } from "./form-definitions.docs";
+import {
+  GetFormDefinitionDocs,
+  GetFormRecipeDocs,
+} from "./form-definitions.docs";
 import { ApiResponse as AppApiResponse } from "../../common/response";
 import type { ApiResponseShape } from "../../common/response";
-import type { ServiceContract } from "@govtech-bb/form-types";
+import type {
+  ServiceContract,
+  ServiceContractRecipe,
+} from "@govtech-bb/form-types";
 
 @ApiTags("Form Definitions")
 @ApiBearerAuth()
@@ -21,6 +27,17 @@ export class FormDefinitionsController {
     const data = await this.formDefinitionsService.findAll();
     return AppApiResponse.success(data, {
       message: "Form definitions retrieved",
+    });
+  }
+
+  @Get(":formId/recipe")
+  @GetFormRecipeDocs()
+  async getRecipe(
+    @Param("formId") formId: string,
+  ): Promise<ApiResponseShape<ServiceContractRecipe>> {
+    const data = await this.formDefinitionsService.getRecipeByFormId(formId);
+    return AppApiResponse.success(data, {
+      message: "Form recipe retrieved",
     });
   }
 

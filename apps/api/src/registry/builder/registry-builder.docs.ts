@@ -2,6 +2,7 @@ import { applyDecorators } from "@nestjs/common";
 import {
   ApiBody,
   ApiConflictResponse,
+  ApiBadRequestResponse,
   ApiNotFoundResponse,
   ApiOperation,
   ApiParam,
@@ -213,6 +214,71 @@ export function SubmitRecipeDocs() {
     ApiConflictResponse({
       description:
         "A form definition with the same formId and version already exists",
+    }),
+  );
+}
+
+export function UpdateRecipeDocs() {
+  return applyDecorators(
+    ApiOperation({
+      summary: "Update an existing recipe in-place",
+      description:
+        "Validates the recipe with Zod, asserts the URL formId matches the recipe formId, " +
+        "then overwrites the stored schema for the matching formId+version row. " +
+        "Returns 400 if formId mismatches, 404 if the formId+version pair does not exist, " +
+        "and 409 if the form definition has already been published.",
+    }),
+    ApiParam({
+      name: "formId",
+      description: "The formId of the existing form definition to update",
+      example: "apply-for-passport",
+    }),
+    ApiBody({
+      schema: {
+        type: "object",
+        required: ["recipe"],
+        properties: {
+          recipe: {
+            type: "object",
+            description:
+              "ServiceContractRecipe to validate and store. formId and version must match the existing record.",
+          },
+        },
+      },
+    }),
+    ApiResponse({
+      status: 200,
+      description: "Recipe updated successfully",
+      schema: {
+        properties: {
+          status: { type: "string", enum: ["success"] },
+          message: { type: "string", example: "Recipe updated successfully" },
+          statusCode: { type: "number", example: 200 },
+          data: {
+            type: "object",
+            description: "Updated FormDefinitionEntity",
+            properties: {
+              id: { type: "string", format: "uuid" },
+              formId: { type: "string" },
+              version: { type: "string" },
+              schema: { type: "object" },
+              publishedAt: { type: "string", nullable: true },
+              createdAt: { type: "string", format: "date-time" },
+              updatedAt: { type: "string", format: "date-time" },
+            },
+          },
+        },
+      },
+    }),
+    ApiBadRequestResponse({
+      description:
+        "Recipe failed Zod validation or formId in URL does not match recipe formId",
+    }),
+    ApiNotFoundResponse({
+      description: "No form definition found for the given formId+version",
+    }),
+    ApiConflictResponse({
+      description: "Form definition is published and cannot be modified",
     }),
   );
 }

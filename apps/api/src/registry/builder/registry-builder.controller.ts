@@ -1,9 +1,18 @@
-import { Body, Controller, Get, HttpCode, Param, Post } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Param,
+  Post,
+  Put,
+} from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { RegistryBuilderService } from "./registry-builder.service";
 import { ValidateRecipeDto } from "./dto/validate-recipe.dto";
 import { PreviewRecipeDto } from "./dto/preview-recipe.dto";
 import { SubmitRecipeDto } from "./dto/submit-recipe.dto";
+import { UpdateRecipeDto } from "./dto/update-recipe.dto";
 import { ApiResponse as AppApiResponse } from "../../common/response";
 import type { ApiResponseShape } from "../../common/response";
 import type {
@@ -27,6 +36,7 @@ import {
   ValidateRecipeDocs,
   PreviewRecipeDocs,
   SubmitRecipeDocs,
+  UpdateRecipeDocs,
 } from "./registry-builder.docs";
 
 @ApiTags("Registry Builder")
@@ -94,6 +104,18 @@ export class RegistryBuilderController {
   ): Promise<ApiResponseShape<RegistryItem>> {
     const data = await this.registryBuilderService.getItem(ref);
     return AppApiResponse.success(data, { message: "Registry item retrieved" });
+  }
+
+  @Put("recipes/:formId")
+  @UpdateRecipeDocs()
+  async updateRecipe(
+    @Param("formId") formId: string,
+    @Body() body: UpdateRecipeDto,
+  ): Promise<ApiResponseShape<FormDefinitionEntity>> {
+    const data = await this.registryBuilderService.updateRecipe(formId, body);
+    return AppApiResponse.success(data, {
+      message: "Recipe updated successfully",
+    });
   }
 
   @Post("recipes/submit")

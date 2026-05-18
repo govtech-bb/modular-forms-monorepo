@@ -8,4 +8,11 @@ export class FormDefinitionRepository extends BaseRepository<FormDefinitionEntit
   constructor(dataSource: DataSource) {
     super(FormDefinitionEntity, dataSource.createEntityManager());
   }
+
+  findRecipeByFormId(formId: string): Promise<FormDefinitionEntity | null> {
+    return this.findOne({
+      where: { formId },
+      order: { createdAt: "DESC" },
+    });
+  }
 }

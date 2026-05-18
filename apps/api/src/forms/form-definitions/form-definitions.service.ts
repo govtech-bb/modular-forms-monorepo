@@ -2,7 +2,10 @@ import { Injectable } from "@nestjs/common";
 import { FormDefinitionRepository } from "./form-definition.repository";
 import { RegistryService } from "../../registry/registry.service";
 import { AppError } from "../../common/errors";
-import type { ServiceContract } from "@govtech-bb/form-types";
+import type {
+  ServiceContract,
+  ServiceContractRecipe,
+} from "@govtech-bb/form-types";
 
 @Injectable()
 export class FormDefinitionsService {
@@ -50,5 +53,15 @@ export class FormDefinitionsService {
 
     const { processors: _processors, ...stripped } = contract;
     return stripped as ServiceContract;
+  }
+
+  async getRecipeByFormId(formId: string): Promise<ServiceContractRecipe> {
+    const entity = await this.formDefRepo.findRecipeByFormId(formId);
+
+    if (!entity) {
+      throw AppError.notFound("Form definition", { formId });
+    }
+
+    return entity.schema;
   }
 }
