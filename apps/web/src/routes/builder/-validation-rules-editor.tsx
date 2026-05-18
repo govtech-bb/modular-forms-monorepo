@@ -30,6 +30,13 @@ interface ValidationRulesEditorProps {
   onChange: (next: ValidationRule) => void;
   fieldRefs: RecipeFieldRef[];
   stepRefs: RecipeStepRef[];
+  /**
+   * Effective label / name of the field these rules apply to. Used to
+   * pre-fill the default error message when a rule is added or when the
+   * user updates a rule's value while the error message is still blank.
+   * Mirrors the wording produced by the server-side `ValidationBuilder`.
+   */
+  fieldName: string;
 }
 
 export function ValidationRulesEditor({
@@ -38,6 +45,7 @@ export function ValidationRulesEditor({
   onChange,
   fieldRefs,
   stepRefs,
+  fieldName,
 }: ValidationRulesEditorProps) {
   const applicable = React.useMemo(
     () =>
@@ -67,9 +75,18 @@ export function ValidationRulesEditor({
       (d) => d.type === addType,
     );
     if (descriptor === undefined) return;
+    const config = defaultConfigFor(descriptor);
+    // Pre-fill a sensible default error so the input isn't empty on first
+    // add. The user can still edit or clear it; clearing will cause us to
+    // re-fill from the descriptor on the next param change (see
+    // handleConfigChange below).
+    const seededConfig: ValidationConfig = {
+      ...config,
+      error: descriptor.getDefaultError(fieldName, config.value),
+    };
     const next: ValidationRule = {
       ...value,
-      [addType]: defaultConfigFor(descriptor),
+      [addType]: seededConfig,
     };
     onChange(next);
     setAddType("");
@@ -86,9 +103,36 @@ export function ValidationRulesEditor({
     patch: Partial<ValidationConfig>,
   ) => {
     const current = value[type] ?? {};
+    const merged: ValidationConfig = { ...current, ...patch };
+
+    // Auto-refresh the default error when the user hasn't supplied a custom
+    // one. We treat the error as "auto" while it is blank/undefined OR
+    // while it still matches the previously-generated default for the
+    // prior value — that way, typing a value and then later editing it
+    // keeps the message coherent. Once the user types their own message,
+    // we leave it alone.
+    const descriptor = VALIDATION_RULE_DESCRIPTORS.find((d) => d.type === type);
+    if (descriptor !== undefined) {
+      const errorEdited = Object.prototype.hasOwnProperty.call(patch, "error");
+      if (!errorEdited) {
+        const prevError = current.error;
+        const prevDefault = descriptor.getDefaultError(
+          fieldName,
+          current.value,
+        );
+        const errorIsAuto =
+          prevError === undefined ||
+          prevError === "" ||
+          prevError === prevDefault;
+        if (errorIsAuto) {
+          merged.error = descriptor.getDefaultError(fieldName, merged.value);
+        }
+      }
+    }
+
     const next: ValidationRule = {
       ...value,
-      [type]: { ...current, ...patch },
+      [type]: merged,
     };
     onChange(next);
   };

@@ -51,6 +51,27 @@ const referenceStepParam: ValidationRuleParam = {
 };
 
 // ---------------------------------------------------------------------------
+// Default-error helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Format a value param for use in an error message. Handles `undefined`
+ * (the user hasn't filled in the parameter yet) by rendering a stable
+ * placeholder, and arrays by joining with commas — mirroring the wording
+ * the server-side `ValidationBuilder` produces.
+ */
+function fmtValue(value: unknown): string {
+  if (value === undefined || value === null || value === "") return "N";
+  if (Array.isArray(value)) return value.join(", ");
+  return String(value);
+}
+
+/** Pluralise a unit label based on a numeric quantity. */
+function plural(value: unknown, singular: string, pluralForm: string): string {
+  return value === 1 || value === "1" ? singular : pluralForm;
+}
+
+// ---------------------------------------------------------------------------
 // Descriptor table — one entry per ValidationType value
 // ---------------------------------------------------------------------------
 
@@ -65,6 +86,9 @@ const referenceStepParam: ValidationRuleParam = {
  * - A human-readable label and description
  * - The runtime parameters the user must supply
  * - Which HTML input types the rule is applicable to
+ * - A `getDefaultError` function whose output matches the server-side
+ *   `ValidationBuilder` for that rule type — so a recipe authored in the
+ *   UI without a custom error renders identically to one built in code.
  */
 export const VALIDATION_RULE_DESCRIPTORS: ValidationRuleDescriptor[] = [
   // ---- General ---------------------------------------------------------- //
@@ -83,6 +107,7 @@ export const VALIDATION_RULE_DESCRIPTORS: ValidationRuleDescriptor[] = [
       errorParam,
     ],
     applicableHtmlTypes: "all",
+    getDefaultError: (fieldName) => `${fieldName} is required`,
   },
 
   {
@@ -91,6 +116,7 @@ export const VALIDATION_RULE_DESCRIPTORS: ValidationRuleDescriptor[] = [
     description: "The value must be a valid e-mail address.",
     params: [errorParam],
     applicableHtmlTypes: ["email", "text"],
+    getDefaultError: (fieldName) => `${fieldName} must be a valid email`,
   },
 
   // ---- Text / string ---------------------------------------------------- //
@@ -104,6 +130,8 @@ export const VALIDATION_RULE_DESCRIPTORS: ValidationRuleDescriptor[] = [
       errorParam,
     ],
     applicableHtmlTypes: ["text", "textarea", "tel", "email"],
+    getDefaultError: (fieldName, value) =>
+      `${fieldName} must be at least ${fmtValue(value)} characters`,
   },
 
   {
@@ -115,6 +143,8 @@ export const VALIDATION_RULE_DESCRIPTORS: ValidationRuleDescriptor[] = [
       errorParam,
     ],
     applicableHtmlTypes: ["text", "textarea", "tel", "email"],
+    getDefaultError: (fieldName, value) =>
+      `${fieldName} must be at most ${fmtValue(value)} characters`,
   },
 
   {
@@ -123,6 +153,7 @@ export const VALIDATION_RULE_DESCRIPTORS: ValidationRuleDescriptor[] = [
     description: "The value must match the given regular expression.",
     params: [{ ...valueParam, label: "Regular expression" }, errorParam],
     applicableHtmlTypes: ["text", "textarea", "tel", "email"],
+    getDefaultError: (fieldName) => `${fieldName} is invalid`,
   },
 
   {
@@ -131,6 +162,8 @@ export const VALIDATION_RULE_DESCRIPTORS: ValidationRuleDescriptor[] = [
     description: "The value must contain the specified substring.",
     params: [{ ...valueParam, label: "Substring to find" }, errorParam],
     applicableHtmlTypes: ["text", "textarea", "tel", "email"],
+    getDefaultError: (fieldName, value) =>
+      `${fieldName} must contain ${fmtValue(value)}`,
   },
 
   // ---- Number ----------------------------------------------------------- //
@@ -141,6 +174,8 @@ export const VALIDATION_RULE_DESCRIPTORS: ValidationRuleDescriptor[] = [
     description: "The numeric value must be at least N.",
     params: [{ ...numericValueParam, label: "Minimum number" }, errorParam],
     applicableHtmlTypes: ["number"],
+    getDefaultError: (fieldName, value) =>
+      `${fieldName} must be at least ${fmtValue(value)}`,
   },
 
   {
@@ -149,6 +184,8 @@ export const VALIDATION_RULE_DESCRIPTORS: ValidationRuleDescriptor[] = [
     description: "The numeric value must be at most N.",
     params: [{ ...numericValueParam, label: "Maximum number" }, errorParam],
     applicableHtmlTypes: ["number"],
+    getDefaultError: (fieldName, value) =>
+      `${fieldName} must be at most ${fmtValue(value)}`,
   },
 
   // ---- Date ------------------------------------------------------------- //
@@ -159,6 +196,7 @@ export const VALIDATION_RULE_DESCRIPTORS: ValidationRuleDescriptor[] = [
     description: "The date must be strictly before today.",
     params: [errorParam],
     applicableHtmlTypes: ["date"],
+    getDefaultError: (fieldName) => `${fieldName} must be in the past`,
   },
 
   {
@@ -167,6 +205,7 @@ export const VALIDATION_RULE_DESCRIPTORS: ValidationRuleDescriptor[] = [
     description: "The date must be today or earlier.",
     params: [errorParam],
     applicableHtmlTypes: ["date"],
+    getDefaultError: (fieldName) => `${fieldName} must be today or in the past`,
   },
 
   {
@@ -175,6 +214,7 @@ export const VALIDATION_RULE_DESCRIPTORS: ValidationRuleDescriptor[] = [
     description: "The date must be strictly after today.",
     params: [errorParam],
     applicableHtmlTypes: ["date"],
+    getDefaultError: (fieldName) => `${fieldName} must be in the future`,
   },
 
   {
@@ -183,6 +223,8 @@ export const VALIDATION_RULE_DESCRIPTORS: ValidationRuleDescriptor[] = [
     description: "The date must be today or later.",
     params: [errorParam],
     applicableHtmlTypes: ["date"],
+    getDefaultError: (fieldName) =>
+      `${fieldName} must be today or in the future`,
   },
 
   {
@@ -191,6 +233,8 @@ export const VALIDATION_RULE_DESCRIPTORS: ValidationRuleDescriptor[] = [
     description: "The date must be strictly after the given date (DD/MM/YYYY).",
     params: [dateValueParam, errorParam],
     applicableHtmlTypes: ["date"],
+    getDefaultError: (fieldName, value) =>
+      `${fieldName} must be after ${fmtValue(value)} (DD/MM/YYYY)`,
   },
 
   {
@@ -200,6 +244,8 @@ export const VALIDATION_RULE_DESCRIPTORS: ValidationRuleDescriptor[] = [
       "The date must be strictly before the given date (DD/MM/YYYY).",
     params: [dateValueParam, errorParam],
     applicableHtmlTypes: ["date"],
+    getDefaultError: (fieldName, value) =>
+      `${fieldName} must be before ${fmtValue(value)} (DD/MM/YYYY)`,
   },
 
   {
@@ -208,6 +254,8 @@ export const VALIDATION_RULE_DESCRIPTORS: ValidationRuleDescriptor[] = [
     description: "The date must be on or after the given date (DD/MM/YYYY).",
     params: [dateValueParam, errorParam],
     applicableHtmlTypes: ["date"],
+    getDefaultError: (fieldName, value) =>
+      `${fieldName} must be on or after ${fmtValue(value)} (DD/MM/YYYY)`,
   },
 
   {
@@ -216,6 +264,8 @@ export const VALIDATION_RULE_DESCRIPTORS: ValidationRuleDescriptor[] = [
     description: "The date must be on or before the given date (DD/MM/YYYY).",
     params: [dateValueParam, errorParam],
     applicableHtmlTypes: ["date"],
+    getDefaultError: (fieldName, value) =>
+      `${fieldName} must be on or before ${fmtValue(value)} (DD/MM/YYYY)`,
   },
 
   {
@@ -227,6 +277,8 @@ export const VALIDATION_RULE_DESCRIPTORS: ValidationRuleDescriptor[] = [
       errorParam,
     ],
     applicableHtmlTypes: ["date"],
+    getDefaultError: (fieldName, value) =>
+      `${fieldName} year must be at least ${fmtValue(value)}`,
   },
 
   {
@@ -238,6 +290,8 @@ export const VALIDATION_RULE_DESCRIPTORS: ValidationRuleDescriptor[] = [
       errorParam,
     ],
     applicableHtmlTypes: ["date"],
+    getDefaultError: (fieldName, value) =>
+      `${fieldName} year must be at most ${fmtValue(value)}`,
   },
 
   // ---- Collections (checkbox / radio / select) -------------------------- //
@@ -248,6 +302,7 @@ export const VALIDATION_RULE_DESCRIPTORS: ValidationRuleDescriptor[] = [
     description: "Exactly one option must be selected in a radio group.",
     params: [errorParam],
     applicableHtmlTypes: ["radio"],
+    getDefaultError: (fieldName) => `${fieldName} is required`,
   },
 
   {
@@ -256,6 +311,8 @@ export const VALIDATION_RULE_DESCRIPTORS: ValidationRuleDescriptor[] = [
     description: "At least N values must be present in the field array.",
     params: [{ ...numericValueParam, label: "Minimum item count" }, errorParam],
     applicableHtmlTypes: ["checkbox", "radio", "select"],
+    getDefaultError: (fieldName, value) =>
+      `${fieldName} must have at least ${fmtValue(value)} items`,
   },
 
   {
@@ -264,6 +321,8 @@ export const VALIDATION_RULE_DESCRIPTORS: ValidationRuleDescriptor[] = [
     description: "At most N values may be present in the field array.",
     params: [{ ...numericValueParam, label: "Maximum item count" }, errorParam],
     applicableHtmlTypes: ["checkbox", "radio", "select"],
+    getDefaultError: (fieldName, value) =>
+      `${fieldName} must have at most ${fmtValue(value)} items`,
   },
 
   {
@@ -272,6 +331,12 @@ export const VALIDATION_RULE_DESCRIPTORS: ValidationRuleDescriptor[] = [
     description: "At least N options must be selected.",
     params: [{ ...numericValueParam, label: "Minimum selections" }, errorParam],
     applicableHtmlTypes: ["checkbox", "radio", "select"],
+    getDefaultError: (fieldName, value) =>
+      `${fieldName} must have at least ${fmtValue(value)} ${plural(
+        value,
+        "selection",
+        "selections",
+      )}`,
   },
 
   {
@@ -280,6 +345,12 @@ export const VALIDATION_RULE_DESCRIPTORS: ValidationRuleDescriptor[] = [
     description: "At most N options may be selected.",
     params: [{ ...numericValueParam, label: "Maximum selections" }, errorParam],
     applicableHtmlTypes: ["checkbox", "radio", "select"],
+    getDefaultError: (fieldName, value) =>
+      `${fieldName} must have at most ${fmtValue(value)} ${plural(
+        value,
+        "selection",
+        "selections",
+      )}`,
   },
 
   // ---- File ------------------------------------------------------------- //
@@ -299,6 +370,8 @@ export const VALIDATION_RULE_DESCRIPTORS: ValidationRuleDescriptor[] = [
       errorParam,
     ],
     applicableHtmlTypes: ["file"],
+    getDefaultError: (fieldName, value) =>
+      `${fieldName} must be one of: ${fmtValue(value)}`,
   },
 
   {
@@ -310,6 +383,12 @@ export const VALIDATION_RULE_DESCRIPTORS: ValidationRuleDescriptor[] = [
       errorParam,
     ],
     applicableHtmlTypes: ["file"],
+    getDefaultError: (fieldName, value) =>
+      `${fieldName} each item must be at most ${fmtValue(value)} ${plural(
+        value,
+        "byte",
+        "bytes",
+      )}`,
   },
 
   {
@@ -322,9 +401,20 @@ export const VALIDATION_RULE_DESCRIPTORS: ValidationRuleDescriptor[] = [
       errorParam,
     ],
     applicableHtmlTypes: ["file"],
+    getDefaultError: (fieldName, value) =>
+      `${fieldName} total size must be at most ${fmtValue(value)} ${plural(
+        value,
+        "byte",
+        "bytes",
+      )}`,
   },
 
   // ---- Cross-field ------------------------------------------------------ //
+  // Note: cross-field rules reference another field by ID. The server-side
+  // builder uses the raw `fieldId` (not its label) in the message, because
+  // it only has the ID at hand. We replicate that wording exactly — the
+  // builder UI passes the chosen `referenceFieldId` as `value` when asking
+  // for the default error so callers don't need a second arg.
 
   {
     type: "equal",
@@ -333,6 +423,8 @@ export const VALIDATION_RULE_DESCRIPTORS: ValidationRuleDescriptor[] = [
       "This field's value must equal the value of another specified field.",
     params: [referenceFieldParam, referenceStepParam, errorParam],
     applicableHtmlTypes: "all",
+    getDefaultError: (fieldName, value) =>
+      `${fieldName} must equal ${fmtValue(value)}'s value`,
   },
 
   {
@@ -342,6 +434,8 @@ export const VALIDATION_RULE_DESCRIPTORS: ValidationRuleDescriptor[] = [
       "This field's value must differ from the value of another specified field.",
     params: [referenceFieldParam, referenceStepParam, errorParam],
     applicableHtmlTypes: "all",
+    getDefaultError: (fieldName, value) =>
+      `${fieldName} must not equal ${fmtValue(value)}'s value`,
   },
 
   {
@@ -351,6 +445,8 @@ export const VALIDATION_RULE_DESCRIPTORS: ValidationRuleDescriptor[] = [
       "This field's value must be strictly greater than the value of another specified field.",
     params: [referenceFieldParam, referenceStepParam, errorParam],
     applicableHtmlTypes: "all",
+    getDefaultError: (fieldName, value) =>
+      `${fieldName} must be greater than ${fmtValue(value)}'s value`,
   },
 
   {
@@ -360,6 +456,8 @@ export const VALIDATION_RULE_DESCRIPTORS: ValidationRuleDescriptor[] = [
       "This field's value must be strictly less than the value of another specified field.",
     params: [referenceFieldParam, referenceStepParam, errorParam],
     applicableHtmlTypes: "all",
+    getDefaultError: (fieldName, value) =>
+      `${fieldName} must be less than ${fmtValue(value)}'s value`,
   },
 
   {
@@ -369,6 +467,8 @@ export const VALIDATION_RULE_DESCRIPTORS: ValidationRuleDescriptor[] = [
       "This field's value must exactly match (type and value) the value of another specified field.",
     params: [referenceFieldParam, referenceStepParam, errorParam],
     applicableHtmlTypes: "all",
+    getDefaultError: (fieldName, value) =>
+      `${fieldName} must exactly match ${fmtValue(value)}'s value`,
   },
 
   {
@@ -392,6 +492,7 @@ export const VALIDATION_RULE_DESCRIPTORS: ValidationRuleDescriptor[] = [
       errorParam,
     ],
     applicableHtmlTypes: "all",
+    getDefaultError: (fieldName) => `${fieldName} has a condition`,
   },
 ];
 

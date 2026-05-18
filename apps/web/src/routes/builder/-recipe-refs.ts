@@ -186,6 +186,42 @@ export function resolveComponentField(
 // future-proofs the helper for step-scoped resolution logic.
 void resolveComponentField;
 
+/**
+ * Compute the user-facing display name for a recipe field, applying any
+ * active overrides.
+ *
+ * For component / custom fields this returns the effective label (the
+ * override, falling back to the registry default). For block fields it
+ * returns the block's registry label — block children have their own
+ * labels but the row itself represents the whole block.
+ *
+ * Falls back to the trailing path segment of `ref` when the registry
+ * item cannot be found (e.g. a stale ref while the catalog reloads).
+ */
+export function getFieldDisplayName(
+  field: RecipeFieldDraft,
+  catalog: RegistryCatalog,
+): string {
+  const item = findRegistryItem(catalog, field.ref);
+  if (item === undefined) {
+    return field.ref.split("/").pop() ?? field.ref;
+  }
+
+  if (item.kind === "block") {
+    // Block — the row represents the whole block. We surface the block's
+    // registry label here. Per-child label overrides are visible inside
+    // the edit panel rather than here.
+    return item.label;
+  }
+
+  // Primitive or custom — apply label override if set, otherwise the
+  // registry default. If a fieldId override is set but no label override,
+  // we still show the registry label so the row keeps a human-readable
+  // name (the fieldId is shown in the ref subtitle row).
+  const overrides = (field.overrides as FieldOverrides | undefined) ?? {};
+  return overrides.label ?? item.label;
+}
+
 // ---------------------------------------------------------------------------
 // Override status
 // ---------------------------------------------------------------------------

@@ -12,6 +12,7 @@ import { FieldEditPanel } from "./-field-edit-panel";
 import { BehavioursEditor } from "./-behaviours-editor";
 import {
   countActiveOverrides,
+  getFieldDisplayName,
   getFieldRefs,
   getStepRefs,
 } from "./-recipe-refs";
@@ -259,6 +260,7 @@ export function StepEditor({
             <FieldRow
               key={field._id}
               field={field}
+              displayName={getFieldDisplayName(field, catalog)}
               isFirst={idx === 0}
               isLast={idx === step.fields.length - 1}
               overrideCount={countActiveOverrides(field)}
@@ -334,6 +336,13 @@ export function StepEditor({
 
 interface FieldRowProps {
   field: RecipeFieldDraft;
+  /**
+   * Effective display name after applying overrides. For component / custom
+   * fields this is the override label (or registry default); for blocks it
+   * is the block's registry label. Computed by the parent so `FieldRow`
+   * does not need a `catalog` dependency.
+   */
+  displayName: string;
   isFirst: boolean;
   isLast: boolean;
   overrideCount: number;
@@ -345,6 +354,7 @@ interface FieldRowProps {
 
 function FieldRow({
   field,
+  displayName,
   isFirst,
   isLast,
   overrideCount,
@@ -380,7 +390,7 @@ function FieldRow({
 
       <div className={css.fieldRowInfo}>
         <span className={css.fieldRowLabel}>
-          {field.ref.split("/").pop()}
+          {displayName}
           {overrideCount > 0 && (
             <span
               className={css.overrideBadge}

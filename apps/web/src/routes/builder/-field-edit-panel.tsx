@@ -244,6 +244,7 @@ function ComponentOverridesEditor({
           }}
           fieldRefs={fieldRefs}
           stepRefs={stepRefs}
+          fieldName={overrides.label ?? base.label}
         />
       </Section>
 
@@ -367,6 +368,7 @@ function BlockOverridesEditor({
               }}
               fieldRefs={fieldRefs}
               stepRefs={stepRefs}
+              fieldName={childOverrides.label ?? child.defaultDefinition.label}
             />
             <div className={css.editorSubsectionSubheading}>Behaviours</div>
             <BehavioursEditor

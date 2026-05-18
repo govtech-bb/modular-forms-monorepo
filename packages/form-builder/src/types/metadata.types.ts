@@ -48,6 +48,19 @@ export interface ValidationRuleDescriptor {
    * `'all'` means the rule applies regardless of field type.
    */
   applicableHtmlTypes: HtmlTypes[] | "all";
+  /**
+   * Default error message generator. Mirrors the wording produced by the
+   * server-side `ValidationBuilder`, so a recipe created in the UI without
+   * a custom error reads the same as one built via the fluent builder.
+   *
+   * `fieldName` should be the effective label / name the user sees for the
+   * field (after any overrides). `value` is the rule's primary configured
+   * value (e.g. the minimum length, the comparison date string, the list
+   * of allowed file types). Implementations should handle `undefined`
+   * gracefully — when the user hasn't yet filled in a parameter we still
+   * want a readable placeholder message.
+   */
+  getDefaultError: (fieldName: string, value?: unknown) => string;
 }
 
 /** The input control type for a behaviour configuration parameter. */
