@@ -310,3 +310,43 @@ export function PreviewRecipeDocs() {
     }),
   );
 }
+
+export function GetNextVersionDocs() {
+  return applyDecorators(
+    ApiOperation({
+      summary: "Compute the next SemVer for a form",
+      description:
+        "Inspects all persisted versions for the given formId and returns the next minor-incremented " +
+        "version string (patch reset to 0). Returns nextVersion: '1.0.0' for an unknown formId. Never returns an error " +
+        "for an unrecognised formId — callers can use this unconditionally when saving a new form.",
+    }),
+    ApiParam({
+      name: "formId",
+      description: "The formId to compute the next version for",
+      example: "apply-for-passport",
+    }),
+    ApiResponse({
+      status: 200,
+      description: "Next version computed",
+      schema: {
+        properties: {
+          status: { type: "string", enum: ["success"] },
+          message: { type: "string", example: "Next version computed" },
+          statusCode: { type: "number", example: 200 },
+          data: {
+            type: "object",
+            properties: {
+              formId: { type: "string", example: "apply-for-passport" },
+              currentVersion: {
+                type: "string",
+                nullable: true,
+                example: "1.0.0",
+              },
+              nextVersion: { type: "string", example: "1.1.0" },
+            },
+          },
+        },
+      },
+    }),
+  );
+}

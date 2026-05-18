@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  InternalServerErrorException,
   Logger,
   NotFoundException,
 } from "@nestjs/common";
@@ -39,6 +40,24 @@ import { FormDefinitionEntity } from "../../database/entities/form-definition.en
 import { FormDefinitionRepository } from "../../forms/form-definitions/form-definition.repository";
 
 const OPTIONS_HTML_TYPES = new Set(["checkbox", "radio", "select"]);
+
+function bumpMinor(v: string): string {
+  const parts = v.split(".");
+  if (parts.length !== 3) {
+    throw new InternalServerErrorException(
+      `Invalid SemVer in database: '${v}'`,
+    );
+  }
+  const major = parseInt(parts[0], 10);
+  const minor = parseInt(parts[1], 10);
+  const patch = parseInt(parts[2], 10);
+  if (isNaN(major) || isNaN(minor) || isNaN(patch)) {
+    throw new InternalServerErrorException(
+      `Invalid SemVer in database: '${v}'`,
+    );
+  }
+  return `${major}.${minor + 1}.0`;
+}
 
 function isPrimitive(entry: RegistryEntry): entry is Primitive {
   return "fieldId" in entry && !("blockId" in entry);
@@ -305,5 +324,26 @@ export class RegistryBuilderService {
       }
       throw err;
     }
+  }
+
+  async getNextVersion(formId: string): Promise<{
+    formId: string;
+    currentVersion: string | null;
+    nextVersion: string;
+  }> {
+    const currentVersion =
+      await this.formDefinitionRepository.findLatestVersionByFormId(formId);
+
+    if (currentVersion === null) {
+      return { formId, currentVersion: null, nextVersion: "1.0.0" };
+    }
+
+    const nextVersion = bumpMinor(currentVersion);
+
+    this.logger.debug(
+      `Next version for formId=${formId}: current=${currentVersion} next=${nextVersion}`,
+    );
+
+    return { formId, currentVersion, nextVersion };
   }
 }

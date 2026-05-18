@@ -37,6 +37,7 @@ import {
   PreviewRecipeDocs,
   SubmitRecipeDocs,
   UpdateRecipeDocs,
+  GetNextVersionDocs,
 } from "./registry-builder.docs";
 
 @ApiTags("Registry Builder")
@@ -104,6 +105,19 @@ export class RegistryBuilderController {
   ): Promise<ApiResponseShape<RegistryItem>> {
     const data = await this.registryBuilderService.getItem(ref);
     return AppApiResponse.success(data, { message: "Registry item retrieved" });
+  }
+
+  @Get("recipes/:formId/next-version")
+  @GetNextVersionDocs()
+  async getNextVersion(@Param("formId") formId: string): Promise<
+    ApiResponseShape<{
+      formId: string;
+      currentVersion: string | null;
+      nextVersion: string;
+    }>
+  > {
+    const data = await this.registryBuilderService.getNextVersion(formId);
+    return AppApiResponse.success(data, { message: "Next version computed" });
   }
 
   @Put("recipes/:formId")
