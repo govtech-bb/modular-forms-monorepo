@@ -12,12 +12,14 @@ import type { ServiceContract } from "@govtech-bb/form-types";
 import {
   fetchCatalog,
   fetchRecipeApi,
+  fetchNextVersionApi,
   validateRecipeApi,
   previewRecipeApi,
   submitRecipeApi,
   updateRecipeApi,
 } from "../../lib/api/registry";
 import { FormFetchError, fetchFormDefinitions } from "../../lib/api/forms";
+import { bumpMinor } from "../../lib/version";
 import type { FormDefinitionSummary } from "@web/types";
 import { recipeDraftReducer, emptyDraft } from "./-recipe-reducer";
 import { BuilderToolbar } from "./-toolbar";
@@ -77,6 +79,9 @@ function BuilderPage() {
 
   // Submit state
   const [version, setVersion] = React.useState("1.0.0");
+  const [currentVersion, setCurrentVersion] = React.useState<string | null>(
+    null,
+  );
   const [isSubmitOpen, setIsSubmitOpen] = React.useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [submitError, setSubmitError] = React.useState<string | null>(null);
@@ -103,6 +108,27 @@ function BuilderPage() {
     draft.steps.find((s) => s.stepId === selectedStepId) ?? null;
 
   const canSubmit = validateResult?.valid === true;
+
+  // ---------------------------------------------------------------------------
+  // Auto-versioning: debounced fetch when formId changes on a new form
+  // ---------------------------------------------------------------------------
+
+  React.useEffect(() => {
+    if (loadedFromId !== null) return; // editing a loaded form; version already set
+    if (!draft.formId) {
+      setVersion("1.0.0");
+      return;
+    }
+    const timer = setTimeout(() => {
+      void fetchNextVersionApi(draft.formId)
+        .then(({ nextVersion, currentVersion: cv }) => {
+          setVersion(nextVersion);
+          setCurrentVersion(cv);
+        })
+        .catch(() => {}); // fail silently; current version display stays
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [draft.formId, loadedFromId]);
 
   // ---------------------------------------------------------------------------
   // Handlers
@@ -215,8 +241,19 @@ function BuilderPage() {
       setSubmitError(null);
       setSubmitSuccess(false);
 
-      // Pre-populate the version input from the loaded recipe
-      setVersion(recipe.version);
+      // Compute the next version automatically from the API
+      try {
+        const { nextVersion, currentVersion: cv } =
+          await fetchNextVersionApi(formId);
+        setVersion(nextVersion);
+        setCurrentVersion(cv);
+      } catch {
+        setVersion(bumpMinor(recipe.version));
+        setCurrentVersion(recipe.version);
+        setLoadError(
+          "Could not compute next version automatically. Using a best-guess increment.",
+        );
+      }
 
       // Record the loaded form's identity for W4 (update vs submit)
       setLoadedFromId(formId);
@@ -246,7 +283,8 @@ function BuilderPage() {
     setSelectedStepId("");
     setLoadedFromId(null);
     setLoadedVersion(null);
-    setVersion("");
+    setVersion("1.0.0");
+    setCurrentVersion(null);
     setValidateResult(null);
     setLastSaveStatus("idle");
     setSubmitError(null);
@@ -272,6 +310,14 @@ function BuilderPage() {
       setSubmitSuccess(true);
       setValidateResult(null);
       setLastSaveStatus("submitted");
+
+      // Fire-and-forget: update the displayed version to the next one
+      fetchNextVersionApi(draft.formId)
+        .then(({ nextVersion, currentVersion: cv }) => {
+          setVersion(nextVersion);
+          setCurrentVersion(cv);
+        })
+        .catch(() => setVersion(bumpMinor(version)));
     } catch (err) {
       if (err instanceof FormFetchError && err.status === 409) {
         setSubmitError("This form has been published and cannot be edited.");
@@ -295,7 +341,6 @@ function BuilderPage() {
         draft={draft}
         dispatch={dispatch}
         version={version}
-        onVersionChange={setVersion}
         onPreview={() => void handlePreview()}
         onValidate={() => void handleValidate()}
         onSubmit={handleOpenSubmit}
@@ -421,6 +466,8 @@ function BuilderPage() {
         <SubmitModal
           formId={draft.formId}
           version={version}
+          currentVersion={currentVersion}
+          onVersionChange={(v) => setVersion(v)}
           isUpdate={loadedFromId !== null}
           isSubmitting={isSubmitting}
           error={submitError}

@@ -112,6 +112,19 @@
   flex-shrink: 0;
 }
 
+.versionDisplay {
+  display: flex;
+  align-items: center;
+  gap: 0.125rem;
+  padding: 0.25rem 0.625rem;
+  background: var(--b-color-surface-hover);
+  border: 1px solid var(--b-color-border);
+  border-radius: var(--b-radius-sm);
+  color: var(--b-color-text-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
 /* ---- Sidebar (step list + palette) ---- */
 
 .sidebar {

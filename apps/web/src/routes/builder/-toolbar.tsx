@@ -19,7 +19,6 @@ interface ToolbarProps {
   draft: RecipeDraft;
   dispatch: React.Dispatch<RecipeDraftAction>;
   version: string;
-  onVersionChange: (version: string) => void;
   onPreview: () => void;
   onValidate: () => void;
   onSubmit: () => void;
@@ -40,7 +39,6 @@ export function BuilderToolbar({
   draft,
   dispatch,
   version,
-  onVersionChange,
   onPreview,
   onValidate,
   onSubmit,
@@ -129,19 +127,16 @@ export function BuilderToolbar({
         aria-label="Form title"
       />
 
-      <label htmlFor="builder-version" className="sr-only">
-        Version
-      </label>
-      <input
-        id="builder-version"
-        className={`${css.toolbarInput} ${css.toolbarInputNarrow}`}
-        type="text"
-        placeholder="e.g. 1.0.0"
-        value={version}
-        onChange={(e) => onVersionChange(e.target.value)}
-        aria-label="Version"
-        maxLength={20}
-      />
+      <div
+        className={css.versionDisplay}
+        aria-label={`Version ${version} (auto-computed)`}
+        title="Version is automatically computed"
+      >
+        <span style={{ opacity: 0.6, fontSize: "0.75rem" }}>v</span>
+        <span style={{ fontFamily: "monospace", fontSize: "0.875rem" }}>
+          {version || "—"}
+        </span>
+      </div>
 
       {lastSaveStatus !== "idle" && (
         <span className={css.statusBar} aria-live="polite">

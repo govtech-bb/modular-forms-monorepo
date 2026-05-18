@@ -170,3 +170,25 @@ export const updateRecipeApi = (
     method: "PUT",
     body: JSON.stringify({ recipe }),
   });
+
+// ---------------------------------------------------------------------------
+// Auto-versioning
+// ---------------------------------------------------------------------------
+
+export interface NextVersionResponse {
+  formId: string;
+  currentVersion: string | null;
+  nextVersion: string;
+}
+
+/**
+ * Fetch the next auto-computed version for a form.
+ * New forms return `1.0.0`; existing forms return a patch-incremented version.
+ * `GET /registry/recipes/:formId/next-version`
+ */
+export const fetchNextVersionApi = (
+  formId: string,
+): Promise<NextVersionResponse> =>
+  registryFetch<NextVersionResponse>(
+    `/registry/recipes/${encodeURIComponent(formId)}/next-version`,
+  );

@@ -1,9 +1,12 @@
 import React from "react";
 import css from "../../styles/builder.module.css";
+import { validateVersion } from "../../lib/version";
 
 interface SubmitModalProps {
   formId: string;
   version: string;
+  currentVersion: string | null;
+  onVersionChange: (v: string) => void;
   isUpdate: boolean;
   isSubmitting: boolean;
   error: string | null;
@@ -15,6 +18,8 @@ interface SubmitModalProps {
 export function SubmitModal({
   formId,
   version,
+  currentVersion,
+  onVersionChange,
   isUpdate,
   isSubmitting,
   error,
@@ -47,6 +52,8 @@ export function SubmitModal({
       onConfirm();
     }
   };
+
+  const versionError = validateVersion(version, currentVersion);
 
   return (
     <div
@@ -131,18 +138,40 @@ export function SubmitModal({
                 <label htmlFor="submit-version" className={css.fieldLabel}>
                   Version
                 </label>
+                <p
+                  style={{
+                    margin: "0",
+                    color: "var(--b-color-text-muted)",
+                    fontSize: "0.8rem",
+                  }}
+                >
+                  {isUpdate
+                    ? "You may edit this. The new version must be higher than the current registered version."
+                    : "Auto-filled from the registry. You may edit this before submitting."}
+                </p>
                 <input
                   id="submit-version"
                   className={css.fieldInput}
                   type="text"
                   value={version}
-                  readOnly
-                  aria-readonly="true"
-                  style={{
-                    background: "var(--b-color-surface-hover)",
-                    color: "var(--b-color-text-muted)",
-                  }}
+                  onChange={(e) => onVersionChange(e.target.value)}
+                  disabled={isSubmitting || success}
+                  aria-describedby={versionError ? "version-error" : undefined}
+                  aria-invalid={versionError ? "true" : undefined}
                 />
+                {versionError && (
+                  <p
+                    id="version-error"
+                    role="alert"
+                    style={{
+                      color: "var(--b-color-danger, #dc2626)",
+                      fontSize: "0.8rem",
+                      margin: "0.25rem 0 0",
+                    }}
+                  >
+                    {versionError}
+                  </p>
+                )}
               </div>
 
               {error && (
@@ -180,7 +209,7 @@ export function SubmitModal({
                 <button
                   type="submit"
                   className={`${css.btn} ${css.btnPrimary}`}
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || !!versionError}
                   aria-busy={isSubmitting}
                 >
                   {isSubmitting
