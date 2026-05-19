@@ -1,5 +1,5 @@
-import { AnyFormApi } from "@tanstack/react-form";
 import { ContactDetails } from "@govtech-bb/form-types";
+import { AnyFormApi } from "@tanstack/react-form";
 import {
   ClientFormStep,
   ClientPrimitive,
