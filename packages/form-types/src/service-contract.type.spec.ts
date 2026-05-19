@@ -60,6 +60,13 @@ describe("contactDetailsSchema", () => {
       contactDetailsSchema.safeParse({ ...validFull, title: "" }).success,
     ).toBe(false);
   });
+
+  it("rejects empty string telephoneNumber", () => {
+    expect(
+      contactDetailsSchema.safeParse({ ...validFull, telephoneNumber: "" })
+        .success,
+    ).toBe(false);
+  });
 });
 
 describe("serviceContractSchema with contactDetails", () => {
