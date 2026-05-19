@@ -2,8 +2,9 @@ import { z } from "zod";
 import { fieldOverridesSchema, primitiveSchema } from "./primitive.type";
 import { behaviourSchema } from "./behavior.type";
 
-const KEBAB_CASE_REGEX = /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/;
-const KEBAB_CASE_MESSAGE = 'Step ID must be in kebab-case (e.g. "my-step")';
+export const KEBAB_CASE_REGEX = /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/;
+export const KEBAB_CASE_MESSAGE =
+  'Step ID must be in kebab-case (e.g. "my-step")';
 
 export const formStepSchema = z.object({
   stepId: z.string().regex(KEBAB_CASE_REGEX, KEBAB_CASE_MESSAGE),

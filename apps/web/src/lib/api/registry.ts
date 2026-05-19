@@ -5,6 +5,8 @@ import type {
 import type {
   RegistryCatalog,
   RecipeValidateResponse,
+  RecipeSubmitResponse,
+  RecipeUpdateResponse,
 } from "@govtech-bb/form-builder";
 import { FormFetchError } from "./forms";
 import type { ApiResponse } from "@web/types";
@@ -141,8 +143,8 @@ export const previewRecipeApi = (
  */
 export const submitRecipeApi = (
   recipe: ServiceContractRecipe,
-): Promise<Record<string, unknown>> =>
-  registryFetch<Record<string, unknown>>("/registry/recipes/submit", {
+): Promise<RecipeSubmitResponse> =>
+  registryFetch<RecipeSubmitResponse>("/registry/recipes/submit", {
     method: "POST",
     body: JSON.stringify(buildSubmitPayload(recipe)),
   });
@@ -165,11 +167,14 @@ export const fetchRecipeApi = (
 export const updateRecipeApi = (
   formId: string,
   recipe: ServiceContractRecipe,
-): Promise<unknown> =>
-  registryFetch<unknown>(`/registry/recipes/${encodeURIComponent(formId)}`, {
-    method: "PUT",
-    body: JSON.stringify({ recipe }),
-  });
+): Promise<RecipeUpdateResponse> =>
+  registryFetch<RecipeUpdateResponse>(
+    `/registry/recipes/${encodeURIComponent(formId)}`,
+    {
+      method: "PUT",
+      body: JSON.stringify({ recipe }),
+    },
+  );
 
 // ---------------------------------------------------------------------------
 // Auto-versioning

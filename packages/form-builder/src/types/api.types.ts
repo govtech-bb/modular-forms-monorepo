@@ -59,3 +59,23 @@ export interface RecipePreviewRequest {
  * Returns the fully-resolved `ServiceContract` for the given recipe.
  */
 export type RecipePreviewResponse = ServiceContract;
+
+/**
+ * Shape of the persisted form definition returned by submit and update endpoints.
+ * Mirrors FormDefinitionEntity from the API without importing the TypeORM entity.
+ */
+export interface FormDefinitionSummary {
+  id: string;
+  formId: string;
+  version: string;
+  schema: ServiceContractRecipe;
+  publishedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** Response body for `POST /registry/recipes/submit`. */
+export type RecipeSubmitResponse = FormDefinitionSummary;
+
+/** Response body for `PUT /registry/recipes/:formId`. */
+export type RecipeUpdateResponse = FormDefinitionSummary;

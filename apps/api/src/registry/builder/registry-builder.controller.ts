@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { RegistryBuilderService } from "./registry-builder.service";
@@ -98,10 +99,10 @@ export class RegistryBuilderController {
     });
   }
 
-  @Get("items/:ref")
+  @Get("items")
   @GetRegistryItemDocs()
   async getRegistryItem(
-    @Param("ref") ref: string,
+    @Query("ref") ref: string,
   ): Promise<ApiResponseShape<RegistryItem>> {
     const data = await this.registryBuilderService.getItem(ref);
     return AppApiResponse.success(data, { message: "Registry item retrieved" });

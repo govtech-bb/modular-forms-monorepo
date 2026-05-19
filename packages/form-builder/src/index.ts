@@ -44,6 +44,9 @@ export type {
   RecipeValidateResponse,
   RecipePreviewRequest,
   RecipePreviewResponse,
+  FormDefinitionSummary,
+  RecipeSubmitResponse,
+  RecipeUpdateResponse,
 } from "./types/api.types";
 
 // ---------------------------------------------------------------------------

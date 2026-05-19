@@ -6,6 +6,7 @@ import {
   ApiNotFoundResponse,
   ApiOperation,
   ApiParam,
+  ApiQuery,
   ApiResponse,
 } from "@nestjs/swagger";
 
@@ -152,9 +153,10 @@ export function GetRegistryItemDocs() {
       description:
         "Returns the enriched descriptor for any registry ref — primitive, block, or custom component.",
     }),
-    ApiParam({
+    ApiQuery({
       name: "ref",
-      description: "Full registry ref, URL-encoded",
+      description:
+        "Full registry ref (e.g. components/first-name, blocks/personal-information)",
       example: "components/first-name",
     }),
     ApiResponse({ status: 200, description: "Registry item retrieved" }),

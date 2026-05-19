@@ -80,6 +80,8 @@ export type {
 export type { Block } from "./block.type";
 
 export {
+  KEBAB_CASE_REGEX,
+  KEBAB_CASE_MESSAGE,
   formStepSchema,
   recipeComponentFieldSchema,
   recipeBlockFieldSchema,
