@@ -781,6 +781,22 @@
   margin-top: var(--spacing-m);
 }
 
+.formRoot .contactDetails {
+  margin-top: var(--spacing-m);
+}
+
+.formRoot .contactDetailsBody {
+  font-size: 1.25rem;
+  line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.formRoot .contactLabel {
+  font-weight: bold;
+}
+
 .formRoot .feedback {
   margin-top: var(--spacing-m);
   border-radius: 0.25rem;
