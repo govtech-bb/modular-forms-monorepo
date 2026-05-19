@@ -8,88 +8,70 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as BuilderIndexRouteImport } from './routes/builder/index'
-import { Route as FormsFormIdIndexRouteImport } from './routes/forms/$formId/index'
+import { Route as rootRouteImport } from "./routes/__root";
+import { Route as IndexRouteImport } from "./routes/index";
+import { Route as FormsFormIdIndexRouteImport } from "./routes/forms/$formId/index";
 
 const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+  id: "/",
+  path: "/",
   getParentRoute: () => rootRouteImport,
-} as any)
-const BuilderIndexRoute = BuilderIndexRouteImport.update({
-  id: '/builder/',
-  path: '/builder/',
-  getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const FormsFormIdIndexRoute = FormsFormIdIndexRouteImport.update({
-  id: '/forms/$formId/',
-  path: '/forms/$formId/',
+  id: "/forms/$formId/",
+  path: "/forms/$formId/",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/builder/': typeof BuilderIndexRoute
-  '/forms/$formId/': typeof FormsFormIdIndexRoute
+  "/": typeof IndexRoute;
+  "/forms/$formId/": typeof FormsFormIdIndexRoute;
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/builder': typeof BuilderIndexRoute
-  '/forms/$formId': typeof FormsFormIdIndexRoute
+  "/": typeof IndexRoute;
+  "/forms/$formId": typeof FormsFormIdIndexRoute;
 }
 export interface FileRoutesById {
-  __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/builder/': typeof BuilderIndexRoute
-  '/forms/$formId/': typeof FormsFormIdIndexRoute
+  __root__: typeof rootRouteImport;
+  "/": typeof IndexRoute;
+  "/forms/$formId/": typeof FormsFormIdIndexRoute;
 }
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/builder/' | '/forms/$formId/'
-  fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/builder' | '/forms/$formId'
-  id: '__root__' | '/' | '/builder/' | '/forms/$formId/'
-  fileRoutesById: FileRoutesById
+  fileRoutesByFullPath: FileRoutesByFullPath;
+  fullPaths: "/" | "/forms/$formId/";
+  fileRoutesByTo: FileRoutesByTo;
+  to: "/" | "/forms/$formId";
+  id: "__root__" | "/" | "/forms/$formId/";
+  fileRoutesById: FileRoutesById;
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  BuilderIndexRoute: typeof BuilderIndexRoute
-  FormsFormIdIndexRoute: typeof FormsFormIdIndexRoute
+  IndexRoute: typeof IndexRoute;
+  FormsFormIdIndexRoute: typeof FormsFormIdIndexRoute;
 }
 
-declare module '@tanstack/react-router' {
+declare module "@tanstack/react-router" {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/builder/': {
-      id: '/builder/'
-      path: '/builder'
-      fullPath: '/builder/'
-      preLoaderRoute: typeof BuilderIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/forms/$formId/': {
-      id: '/forms/$formId/'
-      path: '/forms/$formId'
-      fullPath: '/forms/$formId/'
-      preLoaderRoute: typeof FormsFormIdIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+    "/": {
+      id: "/";
+      path: "/";
+      fullPath: "/";
+      preLoaderRoute: typeof IndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/forms/$formId/": {
+      id: "/forms/$formId/";
+      path: "/forms/$formId";
+      fullPath: "/forms/$formId/";
+      preLoaderRoute: typeof FormsFormIdIndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  BuilderIndexRoute: BuilderIndexRoute,
   FormsFormIdIndexRoute: FormsFormIdIndexRoute,
-}
+};
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
+  ._addFileTypes<FileRouteTypes>();
