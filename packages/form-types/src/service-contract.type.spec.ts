@@ -54,6 +54,12 @@ describe("contactDetailsSchema", () => {
         .success,
     ).toBe(false);
   });
+
+  it("rejects empty string title", () => {
+    expect(
+      contactDetailsSchema.safeParse({ ...validFull, title: "" }).success,
+    ).toBe(false);
+  });
 });
 
 describe("serviceContractSchema with contactDetails", () => {
