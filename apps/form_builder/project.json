@@ -1,5 +1,5 @@
 {
-  "name": "form-builder",
+  "name": "form-builder-app",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/form_builder/src",
   "projectType": "application",

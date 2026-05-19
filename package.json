@@ -11,7 +11,7 @@
     "lint": "nx run-many -t lint",
     "dev:web": "nx dev web",
     "dev:api": "nx dev api",
-    "dev:builder": "nx dev form-builder",
+    "dev:builder": "nx dev form-builder-app",
     "start:web": "nx start web",
     "start:api": "nx start api",
     "format": "prettier --write .",
