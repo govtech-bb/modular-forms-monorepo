@@ -1,0 +1,35 @@
+{
+  "name": "@govtech-bb/form-builder-app",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@govtech-bb/form-builder": "*",
+    "@govtech-bb/form-types": "*",
+    "@tanstack/react-router": "^1.168.22",
+    "@tanstack/react-router-devtools": "^1.166.13",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5"
+  },
+  "scripts": {
+    "dev": "vite dev --port 3002",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint",
+    "lint:fix": "eslint --fix"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.4",
+    "@tanstack/router-plugin": "^1.167.22",
+    "@vitejs/plugin-react": "^6.0.1",
+    "eslint": "^9.39.4",
+    "eslint-plugin-react": "^7.37.5",
+    "globals": "^17.5.0",
+    "jiti": "^2.6.1",
+    "prettier": "^3.0.0",
+    "typescript-eslint": "^8.58.2",
+    "vite": "^8.0.0"
+  }
+}
