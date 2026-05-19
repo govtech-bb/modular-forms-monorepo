@@ -6,6 +6,7 @@ import {
 } from "./field-mapper.type";
 import { FormMeta } from "./renderer.type";
 import { RepeatableStepSettings } from "./behavior-helper.type";
+import { ValidationRule } from "@govtech-bb/form-types";
 
 export interface FormRendererProps {
   form: AnyFormApi;
@@ -43,7 +44,7 @@ export type FileUploadProps = {
   onFileChange: (files: File[] | null) => void;
   value?: File[] | null;
   errorMessage?: string;
-  validationRules?: any;
+  validationRules?: ValidationRule;
 };
 
 export interface SubmissionState {

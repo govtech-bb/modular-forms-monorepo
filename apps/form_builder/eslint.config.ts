@@ -3,10 +3,6 @@ import globals from "globals";
 import tseslint from "typescript-eslint";
 import pluginReact from "eslint-plugin-react";
 import { defineConfig } from "eslint/config";
-import path from "path";
-import { fileURLToPath } from "url";
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig([
   {
@@ -20,10 +16,12 @@ export default defineConfig([
     files: ["**/*.{ts,tsx}"],
     languageOptions: {
       parserOptions: {
-        project: "./tsconfig.json",
-        tsconfigRootDir: __dirname,
+        projectService: {
+          allowDefaultProject: ["*.ts", "*.tsx"],
+        },
       },
     },
   },
   pluginReact.configs.flat.recommended,
+  pluginReact.configs.flat["jsx-runtime"],
 ]);

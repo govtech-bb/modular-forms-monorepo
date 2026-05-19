@@ -1,4 +1,3 @@
-import React from "react";
 import designSystem from "../styles/govtechbb.module.css";
 import { SubmissionConfirmationProps } from "../types/props.type";
 
@@ -19,7 +18,6 @@ export default function SubmissionConfirmation({
     referenceNumber,
     date,
     paymentUrl,
-    paymentId,
     paymentDescription,
   } = submissionState ?? {
     hasPayment: true,
@@ -31,7 +29,6 @@ export default function SubmissionConfirmation({
     referenceNumber: "ABC123456789",
     date: "07/05/2026",
     paymentDescription: undefined,
-    paymentId: undefined,
     paymentUrl: undefined,
   };
 
@@ -55,8 +52,8 @@ export default function SubmissionConfirmation({
                 <div className={designSystem.paymentSuccessSummary}>
                   <h2>Your payment was successful</h2>
                   <p>
-                    Your payment has been received. We've sent a confirmation
-                    email to the address you provided.
+                    Your payment has been received. We&apos;ve sent a
+                    confirmation email to the address you provided.
                   </p>
                   <div className={designSystem.paymentSummaryTable}>
                     <p>Service</p>

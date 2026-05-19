@@ -4,10 +4,6 @@ import tseslint from "typescript-eslint";
 import pluginReact from "eslint-plugin-react";
 import css from "@eslint/css";
 import { defineConfig } from "eslint/config";
-import path from "path";
-import { fileURLToPath } from "url";
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig([
   {
@@ -21,14 +17,17 @@ export default defineConfig([
     files: ["**/*.{ts,tsx}"],
     languageOptions: {
       parserOptions: {
-        project: "./tsconfig.json",
-        tsconfigRootDir: __dirname,
+        projectService: {
+          allowDefaultProject: ["*.ts", "*.tsx"],
+        },
       },
     },
   },
   pluginReact.configs.flat.recommended,
+  pluginReact.configs.flat["jsx-runtime"],
   {
     files: ["**/*.css"],
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     plugins: { css: css as any },
     language: "css/css",
     extends: ["css/recommended"],

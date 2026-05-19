@@ -1,6 +1,6 @@
-import { AnyFieldApi } from "@tanstack/react-form";
+import { AnyFieldApi, AnyFormApi } from "@tanstack/react-form";
 import { ClientPrimitive, FieldValidationProperties } from "@web/types";
-import React, { JSX } from "react";
+import { Fragment, JSX } from "react";
 import ErrorMessage from "./error-message";
 import { RequiredState, checkConditionalOn } from "@web/lib";
 import { DateValue, FieldArrayBehaviour } from "@govtech-bb/form-types";
@@ -11,7 +11,7 @@ export default function FieldRenderer({
   field,
   validationProperties,
 }: {
-  form: any;
+  form: AnyFormApi;
   field: ClientPrimitive;
   validationProperties: FieldValidationProperties;
 }) {
@@ -200,7 +200,7 @@ export default function FieldRenderer({
               inputElement = (
                 <>
                   {Array.from({ length: fieldCount }).map((_, i) => (
-                    <React.Fragment key={`${field.id}-${i}`}>
+                    <Fragment key={`${field.id}-${i}`}>
                       <input
                         {...sharedProps}
                         value={values && values.length > 0 ? values[i] : ""}
@@ -209,7 +209,7 @@ export default function FieldRenderer({
                       {i === fieldCount - 1 && i != 0 ? (
                         <p onClick={() => removeField(values)}> Remove </p>
                       ) : null}
-                    </React.Fragment>
+                    </Fragment>
                   ))}
                   {fieldCount < max ? (
                     <p onClick={() => addAnotherField(values)}>Add Another</p>

@@ -1,8 +1,8 @@
-import { useStore } from "@tanstack/react-form";
+import { AnyFormApi, useStore } from "@tanstack/react-form";
 import { FormValues } from "@web/types";
 
 interface ApplicantNameDisplayProps {
-  form: any;
+  form: AnyFormApi;
 }
 
 export default function ApplicantNameDisplay({
@@ -10,7 +10,7 @@ export default function ApplicantNameDisplay({
 }: ApplicantNameDisplayProps) {
   const formValues = useStore(
     form.store,
-    (state: any) => state.values as FormValues,
+    (state: { values: FormValues }) => state.values,
   );
 
   const firstName = formValues["applicant-details_applicant-first-name"] as
