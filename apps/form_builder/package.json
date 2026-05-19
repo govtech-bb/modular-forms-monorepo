@@ -18,7 +18,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint",
-    "lint:fix": "eslint --fix"
+    "lint:fix": "eslint --fix",
+    "format": "prettier --parser typescript --write **/*.{ts,tsx}"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",
@@ -31,5 +32,8 @@
     "prettier": "^3.0.0",
     "typescript-eslint": "^8.58.2",
     "vite": "^8.0.0"
+  },
+  "lint-staged": {
+    "*.{json,ts,tsx}": "npx prettier --write"
   }
 }

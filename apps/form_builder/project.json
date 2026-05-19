@@ -20,6 +20,14 @@
         "cwd": "apps/form_builder"
       }
     },
+    "start": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npm run preview",
+        "cwd": "apps/form_builder"
+      },
+      "dependsOn": ["build"]
+    },
     "lint": {
       "executor": "@nx/eslint:lint",
       "options": {
