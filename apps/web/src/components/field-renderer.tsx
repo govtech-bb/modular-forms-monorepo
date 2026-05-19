@@ -1,4 +1,4 @@
-import { AnyFieldApi, AnyFormApi } from "@tanstack/react-form";
+import { AnyFieldApi } from "@tanstack/react-form";
 import { ClientPrimitive, FieldValidationProperties } from "@web/types";
 import { Fragment, JSX } from "react";
 import ErrorMessage from "./error-message";
@@ -11,7 +11,8 @@ export default function FieldRenderer({
   field,
   validationProperties,
 }: {
-  form: AnyFormApi;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  form: any;
   field: ClientPrimitive;
   validationProperties: FieldValidationProperties;
 }) {
