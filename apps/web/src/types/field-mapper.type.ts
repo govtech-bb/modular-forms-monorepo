@@ -1,5 +1,6 @@
 import {
   Behaviour,
+  ContactDetails,
   DateTimeFormat,
   fieldValueSchema,
   HtmlTypes,
@@ -41,6 +42,7 @@ export interface ClientServiceContract {
   formId: string;
   title: string;
   description?: string;
+  contactDetails?: ContactDetails;
   steps: ClientFormStep[];
   createdAt: DateTimeFormat;
   updatedAt: DateTimeFormat;
