@@ -27,7 +27,8 @@
       "@web/types": ["apps/web/src/types/index.ts"],
       "@web/lib": ["apps/web/src/lib/form-builder/index.ts"],
       "@web/form-api": ["apps/web/src/lib/api/forms.ts"],
-      "@web/components": ["apps/web/src/components"]
+      "@web/components": ["apps/web/src/components"],
+      "@builder/types": ["apps/form_builder/src/types/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
