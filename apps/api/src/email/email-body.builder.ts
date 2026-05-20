@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import NodeCache from "node-cache";
 import type {
+  ContactDetails,
   FormStep,
   Primitive,
   ServiceContract,
@@ -36,6 +37,15 @@ export interface EmailTemplateContext {
   submittedAt: string;
   processedAt: string;
   sections: EmailSection[];
+  /** Present when the form contract declares an MDA contact block.
+   * Consumed by `mda-notification.hbs` for the staff-side header. */
+  contactDetails?: ContactDetails;
+}
+
+/** Extra context the MDA notification template needs on top of the base
+ * confirmation context. Built by callers from the resolved citizen address. */
+export interface MdaTemplateContext extends EmailTemplateContext {
+  submitterEmail?: string;
 }
 
 /**
@@ -123,6 +133,7 @@ export class EmailBodyBuilder {
       submittedAt: meta.submittedAt,
       processedAt: new Date().toISOString(),
       sections,
+      contactDetails: contract.contactDetails,
     };
   }
 
