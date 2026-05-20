@@ -84,8 +84,3 @@ For the processor:
 - `npx nx test api` — all green; new test cases listed above.
 - `npx tsc -b` — clean (the pre-push gate).
 - Manual smoke (post-merge, with SES creds): submit the master-contract, confirm two emails arrive — one to the citizen email field, one to `registrationdept@barbados.gov.bb`.
-
-## Open questions / follow-ups
-
-- Should `notifyMda` default to `true` (current proposal) or `false` (opt-in)? Default `true` matches "ensure emails are being sent to MDA" — opt-out via config is the safety valve.
-- `example-service-contract.json` is misconfigured (uses `to`/`template` fields the processor ignores). Worth a small follow-up to either fix that contract or remove the dead config fields. Spawned as a separate task.
