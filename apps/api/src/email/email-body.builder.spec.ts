@@ -153,6 +153,32 @@ describe("EmailBodyBuilder", () => {
       expect(typeof ctx.processedAt).toBe("string");
     });
 
+    it("exposes contactDetails from the contract when present", async () => {
+      const contract = makeContract({
+        contactDetails: {
+          title: "Registration Department",
+          telephoneNumber: "(246) 535-8300",
+          email: "registrationdept@example.gov.bb",
+        },
+      });
+      formSvc = makeFormDefinitionsService(contract);
+      builder = new EmailBodyBuilder(formSvc);
+
+      const ctx = await builder.build(makePayload());
+
+      expect(ctx.contactDetails).toEqual({
+        title: "Registration Department",
+        telephoneNumber: "(246) 535-8300",
+        email: "registrationdept@example.gov.bb",
+      });
+    });
+
+    it("leaves contactDetails undefined when the contract has none", async () => {
+      const ctx = await builder.build(makePayload());
+
+      expect(ctx.contactDetails).toBeUndefined();
+    });
+
     it("fetches the contract using formId and formVersion from the payload", async () => {
       await builder.build(makePayload());
 
