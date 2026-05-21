@@ -7,12 +7,12 @@ export const Sex: RadioPrimitive = {
   options: [
     {
       label: "Male",
-      value: "male"
+      value: "male",
     },
     {
       label: "Female",
-      value: "female"
-    }
+      value: "female",
+    },
   ],
   validations: {
     radio: {

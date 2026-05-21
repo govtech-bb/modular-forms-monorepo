@@ -14,7 +14,8 @@ export const Name: TextPrimitive = {
       error: "Name must be at least 2 characters",
     },
     pattern: {
-      value: "^\\s*[A-Za-zÀ-ÖØ-öø-ÿ](?:[A-Za-zÀ-ÖØ-öø-ÿ\\s'-]*[A-Za-zÀ-ÖØ-öø-ÿ])?\\s*$",
+      value:
+        "^\\s*[A-Za-zÀ-ÖØ-öø-ÿ](?:[A-Za-zÀ-ÖØ-öø-ÿ\\s'-]*[A-Za-zÀ-ÖØ-öø-ÿ])?\\s*$",
       error: "Name must contain only letters, hyphens, or apostrophes",
     },
   },
