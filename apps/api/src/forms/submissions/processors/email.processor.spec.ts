@@ -95,6 +95,23 @@ const STUB_CTX: EmailTemplateContext = {
   ],
 };
 
+const STUB_CTX_WITH_MDA: EmailTemplateContext = {
+  ...STUB_CTX,
+  contactDetails: {
+    title: "Civil Registry",
+    telephoneNumber: "(246) 555-0100",
+    email: "mda@example.gov.bb",
+  },
+};
+
+/** Returns the inputs of all SendEmailCommand constructor calls in order. */
+function getAllSentInputs(): SendEmailCommandInput[] {
+  const MockedCmd = SendEmailCommand as unknown as jest.Mock;
+  return MockedCmd.mock.calls.map(
+    (c: unknown[]) => c[0] as SendEmailCommandInput,
+  );
+}
+
 function makeBodyBuilder(
   ctx: EmailTemplateContext = STUB_CTX,
 ): jest.Mocked<EmailBodyBuilder> {
@@ -297,5 +314,220 @@ describe("EmailProcessor — dynamic template rendering", () => {
     const html =
       (getSentInput().Content?.Simple?.Body?.Html?.Data as string) ?? "";
     expect(html).toContain("sub-001");
+  });
+});
+
+describe("EmailProcessor — MDA notification", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  function makeProcessorWithMda(): EmailProcessor {
+    return new EmailProcessor(
+      makeConfig(),
+      makeTemplateService(),
+      makeBodyBuilder(STUB_CTX_WITH_MDA),
+    );
+  }
+
+  it("sends both citizen confirmation AND MDA notification when contactDetails.email is set", async () => {
+    const processor = makeProcessorWithMda();
+
+    await processor.process(makePayload());
+
+    const sends = getAllSentInputs();
+    expect(sends).toHaveLength(2);
+    const recipients = sends.map((s) => s.Destination?.ToAddresses?.[0]);
+    expect(recipients).toEqual(
+      expect.arrayContaining(["jane@example.com", "mda@example.gov.bb"]),
+    );
+  });
+
+  it("tags the citizen send with recipient=citizen and the MDA send with recipient=mda", async () => {
+    const processor = makeProcessorWithMda();
+
+    await processor.process(makePayload());
+
+    const sends = getAllSentInputs();
+    const recipientTags = sends.map(
+      (s) => s.EmailTags?.find((t) => t.Name === "recipient")?.Value,
+    );
+    expect(recipientTags).toEqual(expect.arrayContaining(["citizen", "mda"]));
+  });
+
+  it("renders the mda-notification template for the MDA send", async () => {
+    const templateSvc = makeTemplateService("<h1>MDA Notify</h1>");
+    const processor = new EmailProcessor(
+      makeConfig(),
+      templateSvc,
+      makeBodyBuilder(STUB_CTX_WITH_MDA),
+    );
+
+    await processor.process(makePayload());
+
+    expect(templateSvc.render).toHaveBeenCalledWith(
+      "submission-confirmation",
+      expect.any(Object),
+    );
+    expect(templateSvc.render).toHaveBeenCalledWith(
+      "mda-notification",
+      expect.objectContaining({
+        contactDetails: expect.objectContaining({
+          email: "mda@example.gov.bb",
+        }),
+      }),
+    );
+  });
+
+  it("includes the submitter email in the MDA render context", async () => {
+    const templateSvc = makeTemplateService("<h1>MDA Notify</h1>");
+    const processor = new EmailProcessor(
+      makeConfig(),
+      templateSvc,
+      makeBodyBuilder(STUB_CTX_WITH_MDA),
+    );
+
+    await processor.process(makePayload());
+
+    expect(templateSvc.render).toHaveBeenCalledWith(
+      "mda-notification",
+      expect.objectContaining({ submitterEmail: "jane@example.com" }),
+    );
+  });
+
+  it("uses config.mdaSubject when provided", async () => {
+    const processor = makeProcessorWithMda();
+
+    await processor.process(
+      makePayload({ mdaSubject: "Action required: review submission" }),
+    );
+
+    const mdaSend = getAllSentInputs().find((s) =>
+      s.EmailTags?.some((t) => t.Name === "recipient" && t.Value === "mda"),
+    );
+    expect(mdaSend?.Content?.Simple?.Subject?.Data).toBe(
+      "Action required: review submission",
+    );
+  });
+
+  it("falls back to a default MDA subject when mdaSubject is absent", async () => {
+    const processor = makeProcessorWithMda();
+
+    await processor.process(makePayload());
+
+    const mdaSend = getAllSentInputs().find((s) =>
+      s.EmailTags?.some((t) => t.Name === "recipient" && t.Value === "mda"),
+    );
+    const subject = mdaSend?.Content?.Simple?.Subject?.Data ?? "";
+    expect(subject).toContain("Test Form");
+  });
+
+  it("skips MDA notification when contactDetails.email is absent on the contract", async () => {
+    const processor = new EmailProcessor(
+      makeConfig(),
+      makeTemplateService(),
+      makeBodyBuilder(STUB_CTX),
+    );
+    const warn = jest.spyOn(Logger.prototype, "warn").mockImplementation();
+
+    await processor.process(makePayload());
+
+    const sends = getAllSentInputs();
+    expect(sends).toHaveLength(1);
+    expect(sends[0].Destination?.ToAddresses).toEqual(["jane@example.com"]);
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining("No contactDetails.email"),
+    );
+    warn.mockRestore();
+  });
+
+  it("skips MDA notification when notifyMda is explicitly false", async () => {
+    const processor = makeProcessorWithMda();
+
+    await processor.process(makePayload({ notifyMda: false as never }));
+
+    const sends = getAllSentInputs();
+    expect(sends).toHaveLength(1);
+    expect(sends[0].Destination?.ToAddresses).toEqual(["jane@example.com"]);
+  });
+
+  it("sends MDA notification even when recipientField is missing (no citizen send)", async () => {
+    const processor = makeProcessorWithMda();
+    const payload = makePayload();
+    payload.processors = [{ type: "email", config: {} as never }];
+
+    await processor.process(payload);
+
+    const sends = getAllSentInputs();
+    expect(sends).toHaveLength(1);
+    expect(sends[0].Destination?.ToAddresses).toEqual(["mda@example.gov.bb"]);
+  });
+
+  it("MDA send failure does not fail the processor (citizen still completed)", async () => {
+    const processor = makeProcessorWithMda();
+    const error = jest.spyOn(Logger.prototype, "error").mockImplementation();
+    // First call (citizen) succeeds, second call (MDA) rejects.
+    mockSend
+      .mockResolvedValueOnce({ MessageId: "ses-msg-citizen" })
+      .mockRejectedValueOnce(new Error("SES rejected MDA"));
+
+    await expect(processor.process(makePayload())).resolves.toEqual({
+      kind: "completed",
+    });
+    expect(error).toHaveBeenCalledWith(
+      expect.stringContaining("MDA notification failed"),
+      expect.any(Error),
+    );
+    error.mockRestore();
+  });
+
+  it("citizen send failure is propagated even when MDA send succeeds", async () => {
+    const processor = makeProcessorWithMda();
+    mockSend
+      .mockRejectedValueOnce(new Error("SES rejected citizen"))
+      .mockResolvedValueOnce({ MessageId: "ses-msg-mda" });
+
+    await expect(processor.process(makePayload())).rejects.toThrow(
+      "SES rejected citizen",
+    );
+    // MDA send still attempted before propagation
+    expect(mockSend).toHaveBeenCalledTimes(2);
+  });
+
+  it("skips both sends and logs when neither citizen nor MDA can be resolved", async () => {
+    const processor = new EmailProcessor(
+      makeConfig(),
+      makeTemplateService(),
+      makeBodyBuilder(STUB_CTX), // no contactDetails
+    );
+    const payload = makePayload();
+    payload.processors = [
+      { type: "email", config: { notifyMda: false } as never },
+    ];
+    const warn = jest.spyOn(Logger.prototype, "warn").mockImplementation();
+
+    await processor.process(payload);
+
+    expect(mockSend).not.toHaveBeenCalled();
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining("No recipients configured"),
+    );
+    warn.mockRestore();
+  });
+
+  it("skips MDA when context build fails (we don't know the MDA address)", async () => {
+    const bodyBuilder = makeBodyBuilder(STUB_CTX_WITH_MDA);
+    (bodyBuilder.build as jest.Mock).mockRejectedValue(new Error("DB down"));
+    const processor = new EmailProcessor(
+      makeConfig(),
+      makeTemplateService(),
+      bodyBuilder,
+    );
+
+    await processor.process(makePayload());
+
+    const sends = getAllSentInputs();
+    expect(sends).toHaveLength(1);
+    expect(sends[0].Destination?.ToAddresses).toEqual(["jane@example.com"]);
   });
 });
