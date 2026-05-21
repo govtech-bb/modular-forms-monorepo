@@ -7,6 +7,7 @@ import { AppController } from "./app.controller";
 import { DatabaseModule } from "./database/database.module";
 import { RegistryModule } from "./registry/registry.module";
 import { FormsModule } from "./forms/forms.module";
+import { FilesModule } from "./files/files.module";
 import { PaymentsModule } from "./payments/payments.module";
 import { TelemetryModule } from "./telemetry/telemetry.module";
 import { configs } from "./config";
@@ -30,6 +31,7 @@ import { envValidationSchema } from "./config/env.validation";
     DatabaseModule,
     RegistryModule,
     FormsModule,
+    FilesModule,
     PaymentsModule,
   ],
   controllers: [AppController],
