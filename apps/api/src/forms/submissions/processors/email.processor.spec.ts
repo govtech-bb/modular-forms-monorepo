@@ -7,6 +7,10 @@ import {
 } from "@aws-sdk/client-sesv2";
 import { EmailProcessor } from "./email.processor";
 import type { EmailTemplateService } from "../../../email/email-template.service";
+import type {
+  EmailBodyBuilder,
+  EmailTemplateContext,
+} from "../../../email/email-body.builder";
 import type { SubmissionCreatedEvent } from "../submissions.types";
 
 jest.mock("@aws-sdk/client-sesv2");
@@ -70,7 +74,7 @@ function getSentInput() {
 }
 
 function makeTemplateService(
-  html: string | null = "<p>Rendered</p>",
+  html: string | null = "<h1>Confirmation</h1>",
 ): jest.Mocked<EmailTemplateService> {
   return {
     has: jest.fn().mockReturnValue(html !== null),
@@ -78,12 +82,37 @@ function makeTemplateService(
   } as unknown as jest.Mocked<EmailTemplateService>;
 }
 
+const STUB_CTX: EmailTemplateContext = {
+  formTitle: "Test Form",
+  submissionId: "sub-001",
+  submittedAt: "2026-04-29T10:00:00.000Z",
+  processedAt: "2026-04-29T10:00:01.000Z",
+  sections: [
+    {
+      title: "Personal",
+      fields: [{ label: "Email", value: "jane@example.com" }],
+    },
+  ],
+};
+
+function makeBodyBuilder(
+  ctx: EmailTemplateContext = STUB_CTX,
+): jest.Mocked<EmailBodyBuilder> {
+  return {
+    build: jest.fn().mockResolvedValue(ctx),
+  } as unknown as jest.Mocked<EmailBodyBuilder>;
+}
+
 describe("EmailProcessor", () => {
   let processor: EmailProcessor;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    processor = new EmailProcessor(makeConfig());
+    processor = new EmailProcessor(
+      makeConfig(),
+      makeTemplateService(),
+      makeBodyBuilder(),
+    );
   });
 
   describe("process", () => {
@@ -129,6 +158,8 @@ describe("EmailProcessor", () => {
     it("includes ConfigurationSetName when configured", async () => {
       processor = new EmailProcessor(
         makeConfig({ "email.configurationSet": "modular-forms-prod" }),
+        makeTemplateService(),
+        makeBodyBuilder(),
       );
       await processor.process(makePayload());
 
@@ -170,85 +201,101 @@ describe("EmailProcessor", () => {
   });
 });
 
-describe("EmailProcessor — template rendering", () => {
+describe("EmailProcessor — dynamic template rendering", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  it("uses rendered template HTML when a template exists for the formId", async () => {
-    const templateSvc = makeTemplateService("<h1>Project Protege</h1>");
-    const processor = new EmailProcessor(makeConfig(), templateSvc);
-    const payload = makePayload(
-      {},
-      {
-        personal: { email: "jane@example.com", firstName: "Jane" },
-      },
+  function makeProcessor(
+    html: string | null = "<h1>Confirmation</h1>",
+  ): EmailProcessor {
+    return new EmailProcessor(
+      makeConfig(),
+      makeTemplateService(html),
+      makeBodyBuilder(),
     );
-    // formId is "passport-renewal" — template service returns rendered HTML
-    (payload as { formId: string }).formId = "project-protege-mentor";
+  }
 
-    await processor.process(payload);
+  it("renders the submission-confirmation template for every form", async () => {
+    const templateSvc = makeTemplateService("<h1>Confirmation</h1>");
+    const processor = new EmailProcessor(
+      makeConfig(),
+      templateSvc,
+      makeBodyBuilder(),
+    );
+
+    await processor.process(makePayload());
 
     expect(templateSvc.render).toHaveBeenCalledWith(
-      "project-protege-mentor",
+      "submission-confirmation",
       expect.objectContaining({
-        personal: expect.objectContaining({ email: "jane@example.com" }),
+        formTitle: "Test Form",
         submissionId: "sub-001",
       }),
     );
     const html =
       (getSentInput().Content?.Simple?.Body?.Html?.Data as string) ?? "";
-    expect(html).toContain("Project Protege");
+    expect(html).toContain("Confirmation");
   });
 
-  it("uses explicit templateId from processor config over formId", async () => {
-    const templateSvc = makeTemplateService("<h1>Custom Template</h1>");
-    const processor = new EmailProcessor(makeConfig(), templateSvc);
-    const payload = makePayload({ templateId: "birth-certificate" });
+  it("delegates contract fetching and context building to EmailBodyBuilder", async () => {
+    const bodyBuilder = makeBodyBuilder();
+    const processor = new EmailProcessor(
+      makeConfig(),
+      makeTemplateService(),
+      bodyBuilder,
+    );
 
-    await processor.process(payload);
+    await processor.process(makePayload());
 
-    expect(templateSvc.render).toHaveBeenCalledWith(
-      "birth-certificate",
-      expect.objectContaining({ submissionId: "sub-001" }),
+    expect(bodyBuilder.build).toHaveBeenCalledWith(
+      expect.objectContaining({
+        submissionId: "sub-001",
+        formId: "passport-renewal",
+      }),
     );
   });
 
-  it("falls back to generic HTML body when no template matches", async () => {
-    const templateSvc = makeTemplateService(null); // render returns null
-    const processor = new EmailProcessor(makeConfig(), templateSvc);
-
-    await processor.process(makePayload());
-
-    const html =
-      (getSentInput().Content?.Simple?.Body?.Html?.Data as string) ?? "";
-    // Generic body contains the submission table
-    expect(html).toContain("sub-001");
-    expect(html).not.toContain("Custom Template");
-  });
-
-  it("falls back to generic HTML body when no template service is injected", async () => {
-    // No templateService — processor was constructed without one
-    const processor = new EmailProcessor(makeConfig());
+  it("falls back to generic HTML when the builder throws (e.g. DB down)", async () => {
+    const bodyBuilder = makeBodyBuilder();
+    (bodyBuilder.build as jest.Mock).mockRejectedValue(new Error("DB down"));
+    const processor = new EmailProcessor(
+      makeConfig(),
+      makeTemplateService(),
+      bodyBuilder,
+    );
 
     await processor.process(makePayload());
 
     const html =
       (getSentInput().Content?.Simple?.Body?.Html?.Data as string) ?? "";
     expect(html).toContain("sub-001");
+    expect(html).not.toContain("Confirmation");
   });
 
-  it("includes submittedAt and processedAt in the template context", async () => {
-    const templateSvc = makeTemplateService("<p>ok</p>");
-    const processor = new EmailProcessor(makeConfig(), templateSvc);
+  it("falls back to generic HTML when template render returns null", async () => {
+    const processor = makeProcessor(null);
 
     await processor.process(makePayload());
 
-    const ctx = (templateSvc.render as jest.Mock).mock.calls[0][1] as Record<
-      string,
-      unknown
-    >;
-    expect(typeof ctx["processedAt"]).toBe("string");
-    expect(ctx["submittedAt"]).toBe("2026-04-29T10:00:00.000Z");
+    const html =
+      (getSentInput().Content?.Simple?.Body?.Html?.Data as string) ?? "";
+    expect(html).toContain("sub-001");
+  });
+
+  it("falls back to generic HTML when template render throws", async () => {
+    const bodyBuilder = makeBodyBuilder();
+    bodyBuilder.build.mockRejectedValue(new Error("DB unavailable"));
+    const processor = new EmailProcessor(
+      makeConfig(),
+      makeTemplateService(),
+      bodyBuilder,
+    );
+
+    await processor.process(makePayload());
+
+    const html =
+      (getSentInput().Content?.Simple?.Body?.Html?.Data as string) ?? "";
+    expect(html).toContain("sub-001");
   });
 });

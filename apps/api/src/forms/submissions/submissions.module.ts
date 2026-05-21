@@ -22,6 +22,7 @@ import { SqsConsumerService } from "./sqs/sqs-consumer.service";
 import sqsConfig from "../../config/sqs.config";
 import { ExpressionsModule } from "../../expressions/expressions.module";
 import { EmailTemplateService } from "../../email/email-template.service";
+import { EmailBodyBuilder } from "../../email/email-body.builder";
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { EmailTemplateService } from "../../email/email-template.service";
     FormSubmissionRepository,
     SubmissionPipelineService,
     EmailTemplateService,
+    EmailBodyBuilder,
     // Concrete processor implementations — add new processors here only.
     EmailProcessor,
     OpencrvsProcessor,
